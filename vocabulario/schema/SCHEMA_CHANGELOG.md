@@ -2,6 +2,59 @@
 
 Historial del contrato de la fuente lingüística.
 
+## 1.1 — 2026-09-08
+
+Cierre de las decisiones bloqueantes detectadas en `docs/AI_HANDOFF.md` antes de la fusión/publicación del corpus ~5K.
+
+### Fuente, maestro y servicio
+
+- Se adopta el modelo de **tres papeles**:
+  - APKG/fuentes externas = fuente de importación;
+  - JSONL versionado en Git = fuente de verdad curada;
+  - Firestore = base de servicio para la aplicación.
+- El formato canónico del maestro es JSONL, una línea por entrada lingüística.
+- El CSV queda como formato de intercambio/vista con pérdida para estructuras anidadas.
+
+### `Senses`
+
+- `Senses` pasa a ser un array JSON explícito.
+- Cada acepción tiene `SenseId`, POS, traducciones, definiciones, ejemplos y referencias de origen.
+- Variantes de género/flexión y sinónimos no se convierten automáticamente en acepciones.
+- En entradas polisémicas, los campos planos son proyecciones de compatibilidad; `Senses` es la autoridad semántica.
+
+### `ConceptId`
+
+- Formato base: `<lema-en-normalizado>_<pos-normalizado>`.
+- Homógrafos que sigan colisionando usan calificador semántico estable (`bass_n_fish`, `bass_n_music`), no ordinal arbitrario.
+- Los IDs publicados son estables; cambiarlos exige migración.
+
+### Euskera
+
+- Se fija **euskara batua** como norma canónica del dataset.
+- Sustantivos/adjetivos usan forma de diccionario sin artículo cuando corresponda.
+- Las formas `txakur`, `katu`, `sagar`, `liburu`, `irakasle`, `gorri`, `euri` quedan confirmadas para las siete tarjetas señaladas por Claude.
+
+### `AvailableXX` y estados
+
+- `AvailableXX=true` exige que exista la forma léxica principal del idioma.
+- Un campo vacío implica `AvailableXX=false`.
+- `ContentStatus` gobierna el ciclo de vida global (`draft`, `active`, `deprecated`).
+- `EuStatus`/`FrStatus` gobiernan la revisión lingüística de ese idioma.
+
+### `schemaVersion`
+
+- Maestro: `vocabulario/data/master/manifest.json`.
+- Firestore: `_meta/languageDataset`.
+- CSV: columna `schemaVersion` repetida por fila.
+- APKG propio: campo `SchemaVersion` por nota y `SensesJSON` para las acepciones.
+- Fuentes APKG legacy sin versión pasan por adaptador explícito.
+
+### Mapping
+
+- Se incorpora al contrato una tabla maestro → Firestore → CSV → APKG.
+- Los campos actuales `word`, `es`, `eu`, `example.en`, `active`, `deck` quedan definidos como aliases/proyecciones de compatibilidad de Firestore durante la migración.
+- `deck: true` equivale a `flashcard ∈ Uses`.
+
 ## 1.0 — 2026-09-08
 
 Primera versión formal compartida entre ChatGPT y Claude.
@@ -23,7 +76,6 @@ Primera versión formal compartida entre ChatGPT y Claude.
 
 ### Pendiente para versiones posteriores
 
-- Definir representación estructural definitiva de `Senses`.
-- Definir formato canónico exacto del dataset (JSONL/JSON como fuente primaria y CSV como vista/intercambio).
-- Definir IDs estables tras la fusión final del corpus ~5K.
 - Definir manifest de multimedia y checksums.
+- Refinar el modelo de procedencia por campo/acepción durante la fusión ~5K.
+- Revisar si se necesitan estados de revisión equivalentes para EN/ES en futuras versiones.
