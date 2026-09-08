@@ -48,26 +48,31 @@ cajón).
 Están tomadas de verdad: se discutieron, en algún caso se discreparon, y el
 padre decidió. **No conviene reabrirlas sin motivo nuevo.**
 
-**El `.apkg` de Anki es la fuente del conocimiento.** Se puede diseñar el mazo
-como se quiera y se irá completando, pero de ahí sale el contenido. Se propuso
-la alternativa —maestro en CSV dentro del repositorio, con el `.apkg` como
-salida generada— y **se rechazó**. El informe con esa propuesta y sus motivos
-sigue siendo útil como referencia técnica, pero la decisión está tomada.
+### Tres papeles para el conocimiento lingüístico
 
-**El diccionario accede a TODO el vocabulario; las fichas, no.** Por eso existen
-dos banderas distintas en cada tarjeta:
+Decisión ratificada por Josu el 8 de septiembre de 2026:
 
-- `active` — visible en la app.
-- `deck` — entra en el juego de tarjetas de Sofía.
+- El `.apkg` y otras fuentes externas son **fuentes de importación**.
+- Tras importar, fusionar y curar el corpus, el maestro **JSONL versionado en Git** es la **fuente de verdad académica**.
+- **Firestore** es la **base de servicio** que consume la aplicación y debe poder regenerarse desde el maestro sin afectar a los datos personales/progreso.
 
-Las importaciones grandes van con `--sin-mazo` (`deck: false`): 3.000 palabras
-del Oxford en el diccionario, sí; saliéndole a Sofía en una tarjeta con un
-dibujo que no existe, no.
+Flujo canónico:
 
-**Contenido y datos personales, separados.** El contenido (`cards`) es de solo
-lectura desde el navegador y se escribe con `tools/import/`, que entra con una
-cuenta de servicio. Lo personal (`users/{uid}/…`) es lo único irreemplazable:
-el contenido se puede regenerar, el progreso de Sofía no.
+```text
+.apkg / fuentes externas
+          ↓ importación
+maestro JSONL versionado
+          ↓ publicación
+       Firestore
+          ↓
+          app
+```
+
+El APKG sigue siendo un formato de intercambio de primera clase, pero no es la memoria compartida entre IAs ni el lugar donde se curan silenciosamente las correcciones. El contrato vigente está en `vocabulario/schema/LANGUAGE_DATA_CONTRACT.md`.
+
+**El diccionario accede a TODO el vocabulario; las fichas, no.** En el modelo nuevo esto se expresa mediante `Uses`: `dictionary` permite consulta y `flashcard` permite entrar en actividades de tarjetas. La representación Firestore actual puede mantener compatibilidad temporal con `active`/`deck`, donde `deck: true` equivale a `flashcard ∈ Uses`.
+
+**Contenido y datos personales, separados.** El contenido académico es regenerable desde el maestro. Lo personal (`users/{uid}/…`) es lo irreemplazable: progreso, preferencias e idiomas habilitados del usuario.
 
 **Sin Firebase Storage.** Exige plan de pago. Los medios los sirve Hosting desde
 `vocabulario/media/`, y en Firestore se guardan **rutas, nunca URLs**, así que
@@ -82,110 +87,91 @@ que se registra. No hay que tocar la versión en ningún otro sitio.
 
 ## Qué falta, por orden
 
-### 1. Importar las 3.140 palabras
+### 1. Cerrar el maestro lingüístico ~5K
 
-**Es lo que desbloquea todo lo demás.** La prueba en seco salió bien: 3.140
-notas, 21 de 33 campos reconocidos, sin identificadores repetidos.
+Es el trabajo que desbloquea el nuevo corpus completo. ChatGPT está fusionando las fuentes disponibles (Oxford EN/ES, English Common, Oxford A2 y French Core 5K) bajo `schemaVersion 1.1`.
 
-```bash
-cd tools/import
-set GOOGLE_APPLICATION_CREDENTIALS=C:\claves\...json
-node importar.mjs --origen anki --fichero "...\Sofia_Language_Knowledge_v1.apkg" \
-  --sin-medios --sin-mazo --fuente anki --dry-run
-```
+Objetivo aproximado: **5.000 conceptos/entradas**, no 8.000 mazos pegados entre sí.
 
-Sin `--dry-run` para la de verdad. Qué esperar después:
+El maestro debe conservar:
 
-- El diccionario encontrará «planta» y las otras 3.139.
-- **Sin definiciones**: el mazo las trae vacías. El Oxford 3000 traía glosas y
-  traducciones, no definiciones de diccionario.
-- **Sin euskera**: los 3.140 tienen `Basque` vacío y `EuStatus=empty`.
-- **Sin tema**: `Theme` viene sin asignar en todas.
-- Las tarjetas de Sofía seguirán siendo las 10 de demostración.
+- EN / ES / EU / FR;
+- acepciones estructuradas (`Senses`);
+- `ConceptId` estable que no colisione con homógrafos;
+- audio EN/FR cuando exista;
+- definiciones y ejemplos;
+- procedencia;
+- disponibilidad por idioma;
+- clasificación educativa (`Uses`, tema, etapa cuando proceda);
+- campos visuales y catálogo para generación de imágenes.
 
-### 2. Una pantalla para recorrer el vocabulario
+El fichero canónico será JSONL; CSV seguirá siendo una vista/intercambio con pérdida para datos anidados.
 
-Hoy el diccionario **solo busca**: no hay forma de ver qué hay dentro. Con 3.140
-palabras eso se nota. Falta poder recorrerlo por tema o por letra, y desde ahí
-marcar qué palabras entran en las fichas de Sofía —que es el trabajo de
-curación, y hacerlo desde el sofá en vez de desde un CSV cambia mucho.
+### 2. Adaptar importación/publicación al contrato 1.1
 
-### 3. La tubería de despliegue
+Claude adapta el importador, Firestore y el futuro editor a:
+
+- `Senses` estructurado;
+- nueva regla de `ConceptId`;
+- `schemaVersion` explícito;
+- mapeo maestro → Firestore → CSV → APKG;
+- cuatro idiomas con disponibilidad en contenido y activación en perfil.
+
+La importación grande a Firestore debe hacerse **después** de que el maestro 5K esté suficientemente estable para no crear inmediatamente una migración evitable.
+
+### 3. Una pantalla para recorrer y curar el vocabulario
+
+Hoy el diccionario **solo busca**. Falta poder recorrer por tema/letra, revisar acepciones y traducciones, marcar contenido para flashcards y editar el conocimiento desde una interfaz cómoda. Las correcciones del editor deben volver al maestro versionado; Firestore no se convierte por ello en fuente de verdad.
+
+### 4. La tubería de despliegue
 
 El padre tiene otro proyecto con un mecanismo que le funciona y quiere el mismo
-aquí. Está descrito en un prompt suyo; la auditoría de lo que falta se hizo y
-sigue siendo válida:
+aquí. La auditoría de lo que falta sigue siendo válida:
 
-- **`index.html` no lleva `no-cache`** y cae en el valor por defecto de Firebase
-  Hosting. **Es la causa de que viera la versión antigua tras desplegar.**
-- **`.js` y `.css` con `max-age=3600`**: el service worker precachea con
-  `cache.add`, que pasa por la caché HTTP, así que tras un despliegue puede
-  quedarse con los módulos viejos hasta una hora.
-- **La lista de precacheo del service worker se mantiene a mano** y puede
-  desincronizarse de lo que carga la app. Ya pasó con `navegacion.js`. Merece un
-  script que lo compruebe y que **falle** la CI.
-- **No hay CI ni despliegue automático.** Ahora que el repositorio es propio,
-  `main` significa lo que tiene que significar.
+- `index.html` necesita política de caché adecuada;
+- `.js` y `.css` no deben quedar una hora desfasados tras despliegues;
+- el precacheo del service worker necesita comprobación automática;
+- falta CI y despliegue automático.
 
-Se le propuso **no** poner `?v=` en cada import y usar `no-cache` en su lugar:
-mismo efecto, sin reescribir imports ni vigilar que no se olvide ninguno.
+La credencial de Firebase debe vivir como secreto y nunca pegarse en repositorio ni chat.
 
-Falta que él cree el secreto `FIREBASE_SERVICE_ACCOUNT_...` en GitHub. **Esa
-credencial no debe pegarse en ningún fichero ni en el chat.**
-
-### 4. Terminar Matemagia
+### 5. Terminar Matemagia
 
 Hechos: tablas, sumas y restas ABN. Faltan **multiplicación por descomposición**
 (14 × 6) y **división entre un dígito**. Los **problemas** están bloqueados
-esperando a que el padre pase dos o tres del libro de Sofía, literales, para
-copiar el tono.
+esperando ejemplos del libro de Sofía para copiar el tono.
 
-### 5. Fases 2 a 5 de `docs/interfaz.md`
+### 6. Fases 2 a 5 de `docs/interfaz.md`
 
-La 2 es la que más se nota: separar `uiLocale`, `learningLanguage` y
-`supportLanguages`. Hoy `audio.js` tiene `en-GB` clavado en el código y las
-etiquetas «Castellano» y «Euskara» de la tarjeta están escritas a mano en el
-HTML, así que con la interfaz en inglés siguen diciendo «Castellano».
+La 2 separa `uiLocale`, `learningLanguage` y `supportLanguages`. Francés puede existir en el dataset y permanecer deshabilitado en el perfil hasta que el usuario lo active.
 
 ---
 
-## Lo que está sin decidir
+## Decisiones lingüísticas ya cerradas
 
-**El euskera de 3.140 palabras.** Es el mayor riesgo de calidad del proyecto, y
-es silencioso: la traducción automática devuelve algo plausible. Tres trampas
-concretas:
+**Euskera:** el dataset usa **euskara batua** como norma canónica. Los lemas se guardan en forma de diccionario, sin artículo cuando corresponde. Ejemplos confirmados: `txakur`, `katu`, `sagar`, `liburu`, `irakasle`, `gorri`, `euri`.
 
-- **El determinante.** La forma de diccionario es `txakur`, no `txakurra`:
-  `txakurra` ya lleva el artículo pegado. Un traductor automático devuelve la
-  forma con artículo casi siempre. *Ese error ya está en la tarjeta de
-  demostración del repositorio.*
-- **Batua o variante local.** Hay que decidirlo y escribirlo. En Zumaia se oye
-  una cosa y en el colegio se escribe batua.
-- **Sin contexto se traduce la acepción equivocada.**
+**Acepciones:** no se aplastan. `Senses` es la estructura semántica autoritativa cuando hay polisemia.
 
-Recomendación dada: tandas de 40 por tema, nunca en bloque; traducir siempre con
-inglés + castellano + tipo + frase de ejemplo; marcar `EuStatus = propuesto`; y
-revisión humana antes de `revisado`. **El revisor vive en casa**, que es una
-ventaja que casi ningún proyecto tiene.
+**ConceptId:** formato base `<lema-en-normalizado>_<pos-normalizado>`, con calificador semántico estable si todavía existe una colisión real (`bass_n_fish`, `bass_n_music`). Un ID publicado no cambia sin migración.
 
-**El audio y los ejemplos del mazo.** Los 6.258 MP3 y las frases de ejemplo
-vienen del Oxford 3000. Sirven para casa; **no para redistribuir el mazo**, que
-era uno de los objetivos. La salida es sustituirlos poco a poco por frases sobre
-el mundo de Sofía y audio propio de TTS: legalmente limpio y pedagógicamente
-mejor. Sin decidir cuándo.
+**Audio:** EN y FR admiten audio de palabra y ejemplo; ES/EU no lo requieren en v1. El contenido textual existe independientemente del audio.
 
-**El `ConceptId` es la palabra a secas** (`"id": "a"`). Funciona, pero los
-homógrafos colisionan. El importador ya avisa y se para antes de perder nada.
+**Idiomas:** disponibilidad del concepto (`AvailableEN/ES/EU/FR`) y activación del idioma en el perfil son cosas distintas. Francés se prepara en el corpus, pero puede estar deshabilitado para Sofía.
 
-**Los temas.** Las 3.140 vienen sin `Theme`, y sin temas no hay mapa de
-vocabulario ni sesiones por tema.
+**createdAt:** Claude confirmó que ya se escribe solo al alta en el importador; se retira como riesgo previo a importación.
 
-**El panel de avance del índice.** Diseñado y aparcado por el padre:
-«más adelante vemos de qué manera añadirlo». El mockup está en
-`mockup/panel-inicio.html`. Necesitaría dos cosas que hoy no existen: un
-`createdAt` en las tarjetas —hay que añadirlo **antes** de la importación
-grande o esa información no existirá nunca— y un registro diario para poder
-dibujar actividad por días.
+---
+
+## Lo que sigue abierto
+
+**Curación masiva del euskera.** Aunque la norma ya es batua, la traducción automática puede elegir acepción incorrecta. El contenido generado debe quedar como `proposed` hasta revisión.
+
+**Multimedia de terceros.** Para el uso familiar privado se puede trabajar con las fuentes fusionadas, conservando procedencia. Si algún día el proyecto se redistribuye públicamente, habrá que revisar/sustituir multimedia cuya licencia no permita redistribución.
+
+**Temas y progresión.** El corpus 5K no debe convertirse automáticamente en 5.000 flashcards. El diccionario puede acceder al conjunto completo; las actividades de aprendizaje son una selección curada.
+
+**Imágenes.** Se generarán progresivamente. El pipeline contempla `Imageability` y `ImagePrompt`; algunos conceptos abstractos pueden requerir escena/metáfora o no tener imagen.
 
 ---
 
@@ -195,28 +181,18 @@ Esto no es burocracia: es lo que ha funcionado.
 
 - **Todo en castellano**: nombres de variables, comentarios, mensajes de commit,
   documentación. Los comentarios explican **por qué**, no qué.
-- **Mockup antes de cambiar la interfaz.** Un fichero HTML suelto, se enseña, se
-  decide, y solo entonces se implementa. Está en `mockup/`.
-- **Se prueba antes de subir.** Chromium con dobles de Firebase (el CDN de
-  gstatic está bloqueado en el entorno de Claude), y se mide, no se mira: si la
-  pestaña de Ajustes debe solapar 2 px, se comprueba que solapa 2 px.
-- **Una comprobación que nunca ha fallado no demuestra nada**: cuando se añade
-  una, se rompe a propósito lo que debería detectar.
-- **Sin dependencias en el navegador y sin compilación.** Lo que hay en
-  `vocabulario/` es exactamente lo que se sirve.
-- **Se avisa de lo que se rompe.** Varios de los mejores hallazgos han salido de
-  probar y encontrar que algo ya estaba mal: el margen del notch aplicado al
-  revés, los índices de Firestore que no se desplegaban, el señuelo del `.apkg`.
+- **Mockup antes de cambiar la interfaz.** Un fichero HTML suelto, se enseña, se decide, y solo entonces se implementa.
+- **Se prueba antes de subir.** Chromium con dobles de Firebase cuando haga falta.
+- **Una comprobación que nunca ha fallado no demuestra nada**: cuando se añade una, se rompe a propósito lo que debería detectar.
+- **Sin dependencias en el navegador y sin compilación.** Lo que hay en `vocabulario/` es exactamente lo que se sirve.
+- **Se avisa de lo que se rompe.** Los fallos de datos o contrato van a `docs/AI_HANDOFF.md`; no se corrigen silenciosamente.
 
-### El reparto de tareas
+### Reparto de tareas entre IAs
 
-**Claude no despliega.** Corre en un contenedor aislado sin acceso a Google, así
-que no puede hacer `firebase deploy`, ni entrar en la consola de Firebase, ni
-leer ficheros del disco del padre. Todo eso lo ejecuta él, y hay que darle los
-comandos exactos.
-
-Lo que sí puede: escribir código, probarlo en Chromium, leer el repositorio y
-subir a GitHub.
+- **ChatGPT:** `vocabulario/schema/` y `vocabulario/data/master/`; auditoría y fuente académica.
+- **Claude:** `tools/`, `vocabulario/js/`, `vocabulario/css/`, `vocabulario/*.html`, `.github/`; implementación.
+- **`docs/AI_HANDOFF.md`:** buzón compartido, directo a `main`.
+- **`docs/donde-estamos.md`:** documento de producto bajo decisión de Josu.
 
 ---
 
@@ -224,7 +200,11 @@ subir a GitHub.
 
 | | |
 |---|---|
-| `docs/interfaz.md` | Adaptación por dispositivo e idiomas. Auditoría, sistema de layout, puntos de ruptura, y el plan por fases (0 y 1 hechas). |
-| `tools/import/README.md` | El importador: formatos, cómo se emparejan los campos, qué comprueba. |
+| `docs/AI_COLLABORATION.md` | Reglas de cooperación entre IAs. |
+| `docs/AI_HANDOFF.md` | Buzón de incidencias y cambios ChatGPT ↔ Claude. |
+| `vocabulario/schema/LANGUAGE_DATA_CONTRACT.md` | Contrato canónico del dataset y mappings. |
+| `vocabulario/schema/SCHEMA_CHANGELOG.md` | Historial de cambios del contrato. |
+| `docs/interfaz.md` | Adaptación por dispositivo e idiomas. |
+| `tools/import/README.md` | Importador y formatos. |
 | `vocabulario/README.md` | La PWA por dentro. |
-| `mockup/README.md` | Qué propone cada mockup y cuáles están implementados. |
+| `mockup/README.md` | Mockups y estado de implementación. |
