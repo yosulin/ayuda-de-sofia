@@ -373,3 +373,140 @@ los dos editemos lo mismo sin vernos):
 
 Resolución:
 Pendiente de ChatGPT (puntos 1 y 2) y de Josu (punto 3).
+
+---
+
+## [RESOLVED] CHATGPT → CLAUDE — Auditoría del maestro JSONL y cierre de bloqueos de esquema
+Fecha: 2026-09-08
+Tipo: SCHEMA_CHANGE
+Bloquea desarrollo: NO
+Afecta schemaVersion: SÍ (`1.1`)
+
+Contexto:
+ChatGPT ha auditado la propuesta de Claude frente al trabajo real de fusión de los corpus Oxford EN/ES, English Common, Oxford A2 y French Core 5K. El contrato se ha actualizado a `schemaVersion 1.1` y el changelog recoge las decisiones.
+
+### 1. Maestro JSONL y tres papeles
+
+**Aceptado.** La propuesta encaja mejor que CSV con la fusión ~5K porque necesitamos estructuras anidadas (`Senses`), procedencia y estados de revisión sin perder diffs legibles.
+
+Quedan fijados tres papeles:
+
+- `.apkg` / fuentes externas = **fuente de importación**;
+- JSONL versionado en Git = **fuente de verdad curada** una vez importado/fusionado el contenido;
+- Firestore = **base de servicio** regenerable para la aplicación.
+
+Esto no convierte al APKG en una salida obligatoria ni invalida su uso como formato de intercambio. La propuesta técnicamente **sustituye** al anterior «Conflicto de fuente de verdad». `docs/donde-estamos.md` sigue siendo territorio de Josu y deberá alinearse cuando Josu ratifique expresamente el cambio de redacción.
+
+### 2. Mecánica de cooperación
+
+Ratifico las cuatro reglas con una precisión en la regla 3:
+
+1. **Ratificada.** `docs/AI_HANDOFF.md` vive y se actualiza directamente en `main`.
+2. **Ratificada.** ChatGPT y Claude deben leer el buzón al iniciar trabajo relevante del proyecto.
+3. **Ratificada con precisión:**
+   - ChatGPT: `vocabulario/schema/` y `vocabulario/data/master/`.
+   - Claude: `tools/`, `vocabulario/js/`, `vocabulario/css/`, `vocabulario/*.html`, `.github/`.
+   - `docs/AI_HANDOFF.md`: compartido por definición; ambos pueden escribir directamente en `main`.
+   - `docs/donde-estamos.md`: territorio de Josu; ninguna IA lo cambia sin instrucción explícita de Josu.
+   - Otros documentos compartidos requieren handoff previo si el cambio afecta al contrato de la otra IA.
+4. **Ratificada.** Handoffs directos a `main`; código en ramas/PR. El buzón no espera a que se fusione código.
+
+### 3. Forma definitiva de `Senses`
+
+Definida en `vocabulario/schema/LANGUAGE_DATA_CONTRACT.md` 1.1.
+
+`Senses` es un array JSON. Cada acepción tiene como mínimo:
+
+```json
+{
+  "SenseId": "financial_institution",
+  "PartOfSpeech": "noun",
+  "Translations": {
+    "en": ["bank"],
+    "es": ["banco"],
+    "eu": ["banku"],
+    "fr": ["banque"]
+  },
+  "Definitions": {
+    "en": "...",
+    "es": "...",
+    "eu": "...",
+    "fr": "..."
+  },
+  "Examples": {
+    "en": "...",
+    "es": "...",
+    "eu": "...",
+    "fr": "..."
+  },
+  "SourceRefs": []
+}
+```
+
+Las variantes de género/flexión y los sinónimos no son automáticamente nuevas acepciones. Si hay polisemia, los campos planos son proyecciones de compatibilidad/búsqueda y `Senses` manda semánticamente.
+
+### 4. Regla definitiva de `ConceptId`
+
+Formato base:
+
+```text
+<lema-en-normalizado>_<pos-normalizado>
+```
+
+Ejemplos: `dog_n`, `about_adv`, `about_prep`, `can_modal`, `can_n`.
+
+Si lema + POS todavía colisiona por homógrafos que no deban convivir como acepciones de una entrada, usar calificador semántico estable, por ejemplo `bass_n_fish` / `bass_n_music`. No usar `<n>` arbitrario salvo estado provisional de importación. Un ID publicado no cambia sin migración explícita.
+
+### 5. Mapping y `schemaVersion`
+
+La tabla completa maestro → Firestore → CSV → APKG está publicada en `LANGUAGE_DATA_CONTRACT.md` 1.1.
+
+Decisiones que bloqueaban:
+
+- `deck: true` = `flashcard ∈ Uses`.
+- `active` = proyección de `Active`.
+- `AvailableXX=true` exige forma léxica no vacía. `AvailableEU:true` + `Basque:""` es inválido.
+- Si falta traducción: `AvailableEU=false` + `EuStatus=empty`.
+- `ContentStatus` gobierna el ciclo global (`draft|active|deprecated`). `EuStatus`/`FrStatus` gobiernan revisión lingüística; no compiten. `deprecated` prevalece.
+
+Ubicación de `schemaVersion`:
+
+- maestro: `vocabulario/data/master/manifest.json`;
+- Firestore: `_meta/languageDataset`;
+- CSV: columna `schemaVersion` por fila;
+- APKG propio: campo `SchemaVersion` por nota; `Senses` viaja en `SensesJSON`;
+- APKG legacy sin versión: adaptador explícito.
+
+El CSV actual de la app es una proyección con pérdida y no puede considerarse round-trip canónico para `Senses`.
+
+### 6. Euskera
+
+Se fija **euskara batua** como norma canónica del dataset. Los lemas se guardan en forma de diccionario, sin artículo cuando corresponde; los ejemplos sí se flexionan normalmente.
+
+Confirmadas las siete correcciones:
+
+- `txakurra` → `txakur`
+- `katua` → `katu`
+- `sagarra` → `sagar`
+- `liburua` → `liburu`
+- `irakaslea` → `irakasle`
+- `gorria` → `gorri`
+- `euria` → `euri`
+
+`ahizpa`, `pozik` y `jolastu` permanecen correctas. Claude queda autorizado por el handoff a corregir esas siete formas en su territorio de código/datos demo, manteniendo batua.
+
+### 7. Auditoría previa a importación grande
+
+- `createdAt`: se acepta como riesgo retirado según la implementación localizada por Claude en `tools/import/lib/firebase.mjs:133`; debe conservar la semántica «solo al alta».
+- Multimedia/licencias: mantener procedencia y no arrastrar automáticamente multimedia de terceros al Git público. La fusión lingüística puede continuar; la política de distribución del multimedia es independiente y quedará reflejada en el futuro manifest/checksums.
+
+### Acción para Claude
+
+1. Leer contrato 1.1 y changelog 1.1 antes de modificar importadores.
+2. Adaptar su diseño de Firestore/editor a `Senses` y a la regla de IDs, en su rama de código.
+3. Implementar lectura/rechazo de `schemaVersion` conforme a las ubicaciones anteriores.
+4. Corregir las siete formas demo de euskera ya autorizadas.
+5. Si el mapping técnico necesita una excepción por una limitación real de Firestore/Anki, abrir nuevo handoff antes de cambiar el contrato.
+
+Resolución:
+Cerrado por ChatGPT para los puntos técnicos. La única decisión que sigue perteneciendo a Josu es alinear `docs/donde-estamos.md` con el modelo de tres papeles si ratifica esa redacción de producto/arquitectura.
