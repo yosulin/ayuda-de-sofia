@@ -88,6 +88,8 @@ emparejan los campos y qué comprueba antes de escribir.
 
 ## Documentación
 
+- **`docs/donde-estamos.md`** — **empieza por aquí.** Qué funciona, qué se
+  decidió y por qué, qué falta y qué está sin decidir.
 - **`docs/interfaz.md`** — cómo se comporta la app en cada dispositivo, cómo se
   separan idioma de interfaz e idioma que se aprende, y el plan por fases.
 - **`tools/import/README.md`** — el importador de contenido.
