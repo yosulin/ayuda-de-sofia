@@ -56,6 +56,13 @@ function preguntarAFirebase() {
     if (/not found|no such file|ENOENT/i.test(salida + error.message)) {
       throw new Error("No encuentro la CLI de Firebase.\n  npm install -g firebase-tools");
     }
+    if (/no currently active project|need to specify a project/i.test(salida + error.message)) {
+      throw new Error(
+        "No hay ningún proyecto activo en la CLI de Firebase.\n" +
+        "  firebase use sofiahelptool\n" +
+        "y vuelve a ejecutar esto."
+      );
+    }
     throw new Error("La CLI de Firebase ha fallado:\n" + (salida || error.message));
   }
 }

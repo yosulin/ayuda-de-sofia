@@ -55,13 +55,18 @@ sin estar en ella no se ve nada, aunque entres con Google.
 ## Trabajar en el proyecto
 
 ```bash
-# configuración local de Firebase, a partir de la CLI
+# la primera vez, en cada máquina: elegir el proyecto y generar la
+# configuración local, que está fuera del repositorio a propósito
+firebase use sofiahelptool
 node tools/config-desde-firebase.mjs
 
 # publicar
 firebase deploy --only hosting
 firebase deploy --only firestore:indexes   # cuando cambien las consultas
 ```
+
+El orden importa: el generador le pregunta la configuración a la CLI, así que
+sin proyecto activo no tiene a quién preguntar.
 
 El despliegue sella la versión solo (`tools/sellar-version.mjs`): se lee de
 `VERSION`, y de ahí salen el número que se ve en Ajustes y el nombre de las
