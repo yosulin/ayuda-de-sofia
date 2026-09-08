@@ -1,0 +1,643 @@
+<title>Engranaje con pestaña</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap">
+
+<style>
+/* ============================================================
+   Los mismos tokens que vocabulario/css/estilos.css.
+   Esto es un mockup de una app que ya tiene identidad: aquí no
+   se inventa paleta ni tipografía, se reutilizan las suyas.
+   ============================================================ */
+:root {
+  --crema: #FFF7EF;
+  --superficie: #FFFFFF;
+  --tinta: #2B3440;
+  --tinta-suave: #6B7683;
+  --borde: #ECE3D8;
+
+  --coral: #FF6B6B;
+  --menta: #2A9D8F;
+  --sol: #F4B942;
+  --cielo: #3D7EE8;
+
+  --sombra: 0 2px 4px rgba(43, 52, 64, .05), 0 10px 30px rgba(43, 52, 64, .08);
+  --radio: 22px;
+  --radio-chico: 14px;
+
+  --display: "Baloo 2", "Trebuchet MS", system-ui, sans-serif;
+  --texto: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* propios del mockup */
+  --papel: #F3EDE4;
+  --papel-linea: #E2D8CA;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: var(--texto);
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  padding: 28px 20px 60px;
+}
+
+/* ============================================================
+   CABECERA DEL MOCKUP — el panel de mando, no la app
+   ============================================================ */
+
+.taller {
+  max-width: 940px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+.intro { max-width: 62ch; display: flex; flex-direction: column; gap: 8px; }
+
+.intro h1 {
+  font-family: var(--display);
+  font-size: 1.7rem;
+  margin: 0;
+  text-wrap: balance;
+}
+
+.intro p { margin: 0; color: var(--tinta-suave); line-height: 1.5; }
+
+.mandos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--superficie);
+  border: 2px solid var(--papel-linea);
+  border-radius: var(--radio-chico);
+}
+
+.mandos__etiqueta {
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--tinta-suave);
+  margin-right: 4px;
+}
+
+.opcion {
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  border: 2px solid var(--papel-linea);
+  background: var(--superficie);
+  color: var(--tinta-suave);
+  border-radius: 999px;
+  padding: 7px 15px;
+}
+
+.opcion[aria-pressed="true"] {
+  background: var(--tinta);
+  border-color: var(--tinta);
+  color: #FFF;
+}
+
+.opcion:focus-visible { outline: 3px solid var(--cielo); outline-offset: 2px; }
+
+/* ============================================================
+   EL MÓVIL
+   ============================================================ */
+
+.escena {
+  display: grid;
+  grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
+  gap: 30px;
+  align-items: start;
+}
+
+@media (max-width: 760px) {
+  .escena { grid-template-columns: minmax(0, 1fr); }
+}
+
+.movil {
+  background: var(--crema);
+  border: 10px solid #2B3440;
+  border-radius: 34px;
+  overflow: hidden;
+  box-shadow: var(--sombra);
+  padding-bottom: 18px;
+  min-height: 560px;
+}
+
+/* ---------- cabecera de la app ---------- */
+
+.cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--crema);
+  position: relative;
+  z-index: 3;
+}
+
+.marca { display: flex; align-items: center; gap: 10px; min-width: 0; }
+
+.logo {
+  width: 34px; height: 34px; border-radius: 11px; flex: none;
+  background:
+    radial-gradient(circle at 30% 32%, var(--sol) 0 6px, transparent 7px),
+    radial-gradient(circle at 68% 34%, var(--menta) 0 6px, transparent 7px),
+    radial-gradient(circle at 50% 70%, var(--coral) 0 7px, transparent 8px),
+    #FFF;
+  border: 2px solid var(--borde);
+}
+
+.marca h2 {
+  font-family: var(--display);
+  font-size: 1.08rem;
+  margin: 0;
+  line-height: 1.05;
+  white-space: nowrap;
+}
+
+.marca p { margin: 0; font-size: .74rem; color: var(--tinta-suave); }
+
+/* ---------- el engranaje ---------- */
+
+.engranaje {
+  flex: none;
+  width: 42px;
+  height: 42px;
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+  background: var(--superficie);
+  border: 2px solid var(--borde);
+  border-radius: 50%;
+  position: relative;
+  z-index: 4;
+  transition: border-radius .2s ease, width .2s ease, height .2s ease, margin .2s ease,
+              transform .28s ease, background .2s ease, border-color .2s ease;
+}
+
+.engranaje span { display: block; transition: transform .35s cubic-bezier(.4, 1.5, .5, 1); }
+
+.engranaje:focus-visible { outline: 3px solid var(--cielo); outline-offset: 3px; }
+
+/* el giro es común a las dos variantes: el icono acusa el estado */
+.app.abierto .engranaje span { transform: rotate(60deg); }
+
+.escenario { padding: 4px 16px 0; }
+
+/* ============================================================
+   VARIANTE A — PESTAÑA
+   El engranaje deja de ser botón y pasa a ser la lengüeta del
+   panel: pierde su borde inferior, adopta el blanco del panel y
+   se sienta sobre su canto. El panel renuncia a su esquina
+   superior derecha para que la soldadura no tenga costura.
+   ============================================================ */
+
+.app.pestana.abierto .cabecera { padding-bottom: 0; }
+.app.pestana.abierto .escenario { padding-top: 0; }
+
+.app.pestana.abierto .engranaje {
+  width: 54px;
+  height: 46px;
+  border-radius: var(--radio-chico) var(--radio-chico) 0 0;
+  border-bottom-color: transparent;
+  margin-bottom: -2px;
+}
+
+.app.pestana .panel--ajustes {
+  border: 2px solid var(--borde);
+  box-shadow: none;
+}
+
+.app.pestana .panel--ajustes { border-top-right-radius: 0; }
+
+/* ============================================================
+   VARIANTE B — GLOBO
+   El engranaje sigue siendo un botón redondo, se enciende, y el
+   panel le apunta con un pico. Menos radical, más evidente.
+   ============================================================ */
+
+.app.globo.abierto .engranaje {
+  background: var(--tinta);
+  border-color: var(--tinta);
+}
+
+.app.globo .panel--ajustes { position: relative; margin-top: 12px; }
+
+.app.globo .panel--ajustes::before {
+  content: "";
+  position: absolute;
+  top: -9px;
+  right: 5px;
+  width: 18px;
+  height: 18px;
+  background: var(--superficie);
+  border-left: 2px solid var(--borde);
+  border-top: 2px solid var(--borde);
+  transform: rotate(45deg);
+  border-radius: 3px 0 0 0;
+}
+
+.app.globo .panel--ajustes { border: 2px solid var(--borde); }
+
+/* ============================================================
+   PANELES
+   ============================================================ */
+
+.panel {
+  background: var(--superficie);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 16px;
+}
+
+.panel[hidden] { display: none !important; }
+
+.panel--ajustes { animation: caer .22s ease both; }
+
+@keyframes caer {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.saludo {
+  font-family: var(--display);
+  font-size: 1.15rem;
+  margin: 0 0 12px;
+}
+
+/* ---------- índice de módulos ---------- */
+
+.modulos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.modulo {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  column-gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  border: 2px solid var(--borde);
+  border-left: 6px solid var(--color-modulo, var(--borde));
+  border-radius: var(--radio-chico);
+  background: var(--superficie);
+}
+
+.modulo__icono { grid-row: 1 / 3; font-size: 1.5rem; }
+.modulo__nombre { font-family: var(--display); font-size: 1.02rem; }
+.modulo__que { font-size: .78rem; color: var(--tinta-suave); }
+.modulo[disabled] { opacity: .5; cursor: default; }
+
+/* ---------- contenido de ajustes ---------- */
+
+.ajustes-cabecera {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.volver {
+  font: inherit;
+  font-size: 1.1rem;
+  cursor: pointer;
+  width: 36px; height: 36px;
+  flex: none;
+  border: 2px solid var(--borde);
+  border-radius: 50%;
+  background: var(--superficie);
+  color: var(--tinta);
+}
+
+.ajustes-cabecera h3 {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 1.15rem;
+}
+
+.usuario {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 12px;
+  background: var(--crema);
+  border-radius: var(--radio-chico);
+  margin-bottom: 14px;
+}
+
+.usuario__foto {
+  width: 40px; height: 40px; border-radius: 50%; flex: none;
+  background: var(--sol);
+  display: grid; place-items: center;
+  font-family: var(--display); font-size: 1.1rem; color: #FFF;
+}
+
+.usuario b { display: block; font-size: .95rem; }
+.usuario small { color: var(--tinta-suave); font-size: .78rem; }
+
+.grupo { display: flex; flex-direction: column; gap: 9px; margin-bottom: 14px; }
+
+.rotulo {
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--tinta-suave);
+  margin: 0;
+}
+
+.idiomas { display: flex; gap: 8px; }
+
+.idioma {
+  flex: 1;
+  font: inherit;
+  font-weight: 700;
+  font-size: .85rem;
+  cursor: pointer;
+  padding: 9px 4px;
+  border: 2px solid var(--borde);
+  border-radius: var(--radio-chico);
+  background: var(--superficie);
+  color: var(--tinta-suave);
+}
+
+.idioma[aria-pressed="true"] {
+  background: var(--cielo);
+  border-color: var(--cielo);
+  color: #FFF;
+}
+
+.fila {
+  font: inherit;
+  font-weight: 700;
+  font-size: .9rem;
+  text-align: left;
+  cursor: pointer;
+  padding: 11px 13px;
+  border: 2px solid var(--borde);
+  border-radius: var(--radio-chico);
+  background: var(--superficie);
+  color: var(--tinta);
+}
+
+.version {
+  border-top: 2px dashed var(--borde);
+  padding-top: 12px;
+  font-size: .8rem;
+  color: var(--tinta-suave);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.version b { color: var(--tinta); font-variant-numeric: tabular-nums; }
+
+/* ============================================================
+   NOTAS AL MARGEN
+   ============================================================ */
+
+.notas { display: flex; flex-direction: column; gap: 16px; }
+
+.nota {
+  background: var(--superficie);
+  border: 2px solid var(--papel-linea);
+  border-radius: var(--radio-chico);
+  padding: 16px 18px;
+}
+
+.nota h3 {
+  margin: 0 0 8px;
+  font-family: var(--display);
+  font-size: 1.1rem;
+}
+
+.nota p { margin: 0 0 10px; line-height: 1.55; color: var(--tinta-suave); }
+.nota p:last-child { margin-bottom: 0; }
+.nota strong { color: var(--tinta); }
+
+.nota ul { margin: 0; padding-left: 20px; line-height: 1.55; color: var(--tinta-suave); }
+.nota li + li { margin-top: 6px; }
+
+.nota--activa { border-color: var(--tinta); }
+
+.nota code {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-size: .84em;
+  background: var(--crema);
+  border-radius: 5px;
+  padding: 1px 5px;
+  color: var(--tinta);
+}
+
+.pista {
+  font-size: .8rem;
+  color: var(--tinta-suave);
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before { animation: none !important; transition: none !important; }
+}
+</style>
+
+<div class="taller">
+
+  <div class="intro">
+    <h1>El engranaje como pestaña</h1>
+    <p>Dos formas de que Ajustes «cuelgue» del engranaje en vez de aparecer como una pantalla suelta. Pulsa el engranaje del móvil: abre. Vuelve a pulsarlo: cierra y vuelves al índice.</p>
+  </div>
+
+  <div class="mandos">
+    <span class="mandos__etiqueta">Variante</span>
+    <button class="opcion" type="button" id="op-pestana" aria-pressed="true">A · Pestaña</button>
+    <button class="opcion" type="button" id="op-globo" aria-pressed="false">B · Globo</button>
+  </div>
+
+  <div class="escena">
+
+    <!-- ============ EL MÓVIL ============ -->
+    <div class="movil">
+      <div class="app pestana" id="app">
+
+        <header class="cabecera">
+          <div class="marca">
+            <span class="logo" aria-hidden="true"></span>
+            <div>
+              <h2>Ayuda de Sofía</h2>
+              <p>Tus herramientas</p>
+            </div>
+          </div>
+          <button class="engranaje" type="button" id="engranaje" aria-expanded="false" aria-controls="panel-ajustes" aria-label="Ajustes">
+            <span aria-hidden="true">⚙️</span>
+          </button>
+        </header>
+
+        <main class="escenario">
+
+          <!-- índice -->
+          <section class="panel panel--indice" id="panel-indice">
+            <p class="saludo">¡Hola, Sofía! 👋</p>
+            <ul class="modulos">
+              <li>
+                <button class="modulo" type="button" style="--color-modulo: var(--coral)">
+                  <span class="modulo__icono" aria-hidden="true">🃏</span>
+                  <span class="modulo__nombre">Tarjetas</span>
+                  <span class="modulo__que">Palabras en inglés con dibujos</span>
+                </button>
+              </li>
+              <li>
+                <button class="modulo" type="button" style="--color-modulo: var(--cielo)">
+                  <span class="modulo__icono" aria-hidden="true">📖</span>
+                  <span class="modulo__nombre">Diccionario</span>
+                  <span class="modulo__que">Una palabra, tres idiomas</span>
+                </button>
+              </li>
+              <li>
+                <button class="modulo" type="button" style="--color-modulo: var(--menta)">
+                  <span class="modulo__icono" aria-hidden="true">✨</span>
+                  <span class="modulo__nombre">Matemagia</span>
+                  <span class="modulo__que">Sumas y restas con saltos</span>
+                </button>
+              </li>
+              <li>
+                <button class="modulo" type="button" style="--color-modulo: var(--sol)" disabled>
+                  <span class="modulo__icono" aria-hidden="true">➕</span>
+                  <span class="modulo__nombre">Pronto</span>
+                  <span class="modulo__que">Aquí irán más ayudas</span>
+                </button>
+              </li>
+            </ul>
+          </section>
+
+          <!-- ajustes -->
+          <section class="panel panel--ajustes" id="panel-ajustes" hidden>
+            <div class="ajustes-cabecera">
+              <button class="volver" type="button" id="volver" aria-label="Volver">←</button>
+              <h3>Ajustes</h3>
+            </div>
+
+            <div class="usuario">
+              <span class="usuario__foto" aria-hidden="true">Y</span>
+              <div>
+                <b>Yosu Suárez</b>
+                <small>yosu.suarez@gmail.com</small>
+              </div>
+            </div>
+
+            <div class="grupo">
+              <p class="rotulo">Idioma de la app</p>
+              <div class="idiomas">
+                <button class="idioma" type="button" aria-pressed="true">Castellano</button>
+                <button class="idioma" type="button" aria-pressed="false">Euskera</button>
+                <button class="idioma" type="button" aria-pressed="false">English</button>
+              </div>
+            </div>
+
+            <div class="grupo">
+              <button class="fila" type="button">📲 Instalar la app</button>
+              <button class="fila" type="button">👋 Cerrar sesión</button>
+            </div>
+
+            <div class="version">
+              <span>Versión <b>0.4.0+65c87ce</b></span>
+              <span>Actualizada <b>07/09/2026 · 09:34</b></span>
+            </div>
+          </section>
+
+        </main>
+      </div>
+    </div>
+
+    <!-- ============ NOTAS ============ -->
+    <div class="notas">
+
+      <div class="nota nota--activa" id="nota-pestana">
+        <h3>A · Pestaña</h3>
+        <p>El engranaje <strong>deja de ser un botón y pasa a ser la lengüeta del panel</strong>: se estira, pierde la forma redonda y el borde de abajo, se pone del blanco del panel y se sienta sobre su canto. El panel renuncia a su esquina superior derecha, así que la unión no tiene costura.</p>
+        <p>Es la que creo que estás pidiendo: mirándola se ve <em>de dónde sale</em> Ajustes, y por eso volver a pulsar el engranaje para cerrarlo se entiende solo.</p>
+      </div>
+
+      <div class="nota" id="nota-globo">
+        <h3>B · Globo</h3>
+        <p>El engranaje sigue redondo pero <strong>se enciende</strong>, y el panel le apunta con un pico. Cuenta lo mismo con menos cambio de forma; encaja mejor si algún día el panel no ocupa todo el ancho.</p>
+      </div>
+
+      <div class="nota">
+        <h3>Lo que hacen las dos igual</h3>
+        <ul>
+          <li>El engranaje <strong>alterna</strong>: abre Ajustes y vuelve a cerrarlo, dejándote donde estabas.</li>
+          <li>Gira un poco al abrir, para que el dedo note que ha pasado algo.</li>
+          <li>La flecha <code>←</code> se queda: hace lo mismo que el engranaje y es la salida que ya conoce.</li>
+          <li>El botón lleva <code>aria-expanded</code>, así que un lector de pantalla también sabe si está abierto.</li>
+        </ul>
+      </div>
+
+      <p class="pista">Mockup a tamaño de móvil. Cuando me digas cuál, lo llevo a <code>vocabulario/</code> con los tokens que ya tiene la app.</p>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const app = document.getElementById("app");
+const engranaje = document.getElementById("engranaje");
+const volver = document.getElementById("volver");
+const indice = document.getElementById("panel-indice");
+const ajustes = document.getElementById("panel-ajustes");
+
+/* Abrir y cerrar. Cerrar siempre devuelve al índice: es la gracia
+   de que el panel cuelgue del engranaje. */
+function mostrar(abierto) {
+  app.classList.toggle("abierto", abierto);
+  engranaje.setAttribute("aria-expanded", String(abierto));
+  ajustes.hidden = !abierto;
+  indice.hidden = abierto;
+}
+
+engranaje.addEventListener("click", () => {
+  mostrar(!app.classList.contains("abierto"));
+});
+
+volver.addEventListener("click", () => mostrar(false));
+
+/* Cambio de variante. */
+const opPestana = document.getElementById("op-pestana");
+const opGlobo = document.getElementById("op-globo");
+const notaPestana = document.getElementById("nota-pestana");
+const notaGlobo = document.getElementById("nota-globo");
+
+function variante(nombre) {
+  const esPestana = nombre === "pestana";
+  app.classList.toggle("pestana", esPestana);
+  app.classList.toggle("globo", !esPestana);
+  opPestana.setAttribute("aria-pressed", String(esPestana));
+  opGlobo.setAttribute("aria-pressed", String(!esPestana));
+  notaPestana.classList.toggle("nota--activa", esPestana);
+  notaGlobo.classList.toggle("nota--activa", !esPestana);
+  mostrar(true);   /* al comparar, interesa verlo abierto */
+}
+
+opPestana.addEventListener("click", () => variante("pestana"));
+opGlobo.addEventListener("click", () => variante("globo"));
+
+/* Arranca abierto: lo que hay que juzgar es la unión, no el índice. */
+mostrar(true);
+</script>

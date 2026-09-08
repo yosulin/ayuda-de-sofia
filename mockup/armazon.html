@@ -1,0 +1,1069 @@
+<title>Armazón adaptativo</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap">
+
+<style>
+/* ============================================================
+   MOCKUP DEL ARMAZÓN — Ayuda de Sofía
+   ------------------------------------------------------------
+   Los tokens son los de la app (vocabulario/css/estilos.css).
+   Aquí no se inventa identidad visual: se prueba estructura.
+
+   TRUCO DEL MOCKUP: dentro del marco las rupturas son CONTAINER
+   queries, no media queries, para que cambiar de formato aquí
+   reaccione de verdad sin abrir cinco ventanas. En producción
+   son media queries con los mismos valores (y una sola container
+   query, la del área de trabajo). Los números son idénticos.
+   ============================================================ */
+
+:root {
+  --crema: #FFF7EF;
+  --superficie: #FFFFFF;
+  --tinta: #2B3440;
+  --tinta-suave: #6B7683;
+  --borde: #ECE3D8;
+
+  --coral: #FF6B6B;
+  --coral-oscuro: #E24E4E;
+  --menta: #2A9D8F;
+  --sol: #F4B942;
+  --cielo: #3D7EE8;
+
+  --sombra: 0 2px 4px rgba(43, 52, 64, .05), 0 10px 30px rgba(43, 52, 64, .08);
+  --radio: 22px;
+  --radio-chico: 14px;
+
+  --display: "Baloo 2", "Trebuchet MS", system-ui, sans-serif;
+  --texto: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* mesa de trabajo del mockup */
+  --mesa: #E9E5DF;
+  --mesa-linea: #D3CDC4;
+  --mesa-tinta: #3A3630;
+  --mesa-suave: #6E675E;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--mesa);
+  color: var(--mesa-tinta);
+  font-family: var(--texto);
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+  padding: 22px 20px 60px;
+}
+
+/* ============================================================
+   MESA DE TRABAJO
+   ============================================================ */
+
+.taller { max-width: 1500px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+
+.titular { display: flex; flex-direction: column; gap: 6px; max-width: 68ch; }
+
+.titular h1 {
+  font-family: var(--display);
+  font-size: 1.6rem;
+  margin: 0;
+  color: var(--mesa-tinta);
+}
+
+.titular p { margin: 0; color: var(--mesa-suave); line-height: 1.5; }
+
+/* ---------- mandos ---------- */
+
+.mandos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  padding: 11px 13px;
+  background: var(--superficie);
+  border: 2px solid var(--mesa-linea);
+  border-radius: var(--radio-chico);
+}
+
+.mandos__grupo { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+
+.mandos__et {
+  font-size: .66rem;
+  font-weight: 800;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+  color: var(--mesa-suave);
+  margin-right: 2px;
+}
+
+.mandos__sep { width: 1px; align-self: stretch; background: var(--mesa-linea); }
+
+.chip {
+  font: inherit;
+  font-size: .84rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: 2px solid var(--mesa-linea);
+  background: var(--superficie);
+  color: var(--mesa-suave);
+  border-radius: 999px;
+  padding: 6px 13px;
+  white-space: nowrap;
+}
+
+.chip small { display: block; font-size: .68rem; font-weight: 600; opacity: .7; }
+.chip[aria-pressed="true"] { background: var(--mesa-tinta); border-color: var(--mesa-tinta); color: #FFF; }
+.chip:focus-visible { outline: 3px solid var(--cielo); outline-offset: 2px; }
+
+/* ---------- escenario ---------- */
+
+.escenario-mockup {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+@media (min-width: 1180px) {
+  .escenario-mockup { grid-template-columns: minmax(0, 1fr) 268px; gap: 22px; }
+}
+
+.lienzo {
+  background:
+    repeating-linear-gradient(45deg, transparent 0 9px, rgba(0, 0, 0, .022) 9px 18px),
+    var(--mesa);
+  border: 2px dashed var(--mesa-linea);
+  border-radius: 14px;
+  padding: 20px;
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  overflow: hidden;
+}
+
+.medida {
+  font-size: .74rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+  color: var(--mesa-suave);
+  font-variant-numeric: tabular-nums;
+}
+
+/* El marco se dibuja a tamaño real y se reduce con transform, que NO
+   cambia el tamaño de maquetación: por eso el hueco lo saca del flujo
+   y reserva a mano el sitio que ocupa YA ESCALADO. Si no, un marco de
+   1440px se sale del lienzo aunque se vea al 77%. */
+.hueco { position: relative; width: 100%; }
+
+/* ============================================================
+   EL DISPOSITIVO
+   ============================================================ */
+
+.marco {
+  position: absolute;
+  top: 0;
+  transform-origin: top left;
+  background: var(--crema);
+  border: 9px solid #22292F;
+  border-radius: 26px;
+  overflow: hidden;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, .18);
+  flex: none;
+
+  /* Consulta de tamaño: el armazón de dentro pregunta por ESTA caja,
+     no por la ventana. Es lo que hace navegable el mockup. */
+  container-type: size;
+  container-name: dispositivo;
+}
+
+/* ============================================================
+   ARMAZÓN — una sola rejilla, cuatro repartos
+   ============================================================ */
+
+.armazon {
+  height: 100%;
+  display: grid;
+  background: var(--crema);
+  color: var(--tinta);
+
+  /* Punto de partida (móvil): cabecera, trabajo, navegación abajo. */
+  grid-template-areas:
+    "cabecera"
+    "trabajo"
+    "navegacion";
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.cabecera-app { grid-area: cabecera; }
+.trabajo      { grid-area: trabajo; }
+.navegacion   { grid-area: navegacion; }
+.auxiliar     { grid-area: auxiliar; display: none; }
+
+/* ---- 56rem (900px): la navegación se va al lado, solo iconos ---- */
+@container dispositivo (min-width: 56rem) {
+  .armazon {
+    grid-template-areas:
+      "navegacion cabecera"
+      "navegacion trabajo";
+    grid-template-columns: 72px minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+}
+
+/* ---- 75rem (1200px): barra lateral con texto + columna auxiliar ---- */
+@container dispositivo (min-width: 75rem) {
+  .armazon {
+    grid-template-areas:
+      "navegacion cabecera  cabecera"
+      "navegacion trabajo   auxiliar";
+    grid-template-columns: 232px minmax(0, 1fr) 252px;
+  }
+  .auxiliar { display: block; }
+}
+
+/* ---- poco alto y tumbado: la navegación se pliega a un cajón ---- */
+@container dispositivo (max-height: 32rem) and (orientation: landscape) {
+  .armazon {
+    grid-template-areas:
+      "cabecera"
+      "trabajo";
+    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .navegacion { display: none; }
+  .auxiliar { display: none; }
+}
+
+/* ============================================================
+   CABECERA
+   ============================================================ */
+
+.cabecera-app {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--crema);
+  border-bottom: 2px solid transparent;
+}
+
+.marca { display: flex; align-items: center; gap: 10px; min-width: 0; }
+
+.logo {
+  width: 32px; height: 32px; border-radius: 10px; flex: none;
+  background:
+    radial-gradient(circle at 30% 32%, var(--sol) 0 6px, transparent 7px),
+    radial-gradient(circle at 68% 34%, var(--menta) 0 6px, transparent 7px),
+    radial-gradient(circle at 50% 70%, var(--coral) 0 7px, transparent 8px),
+    #FFF;
+  border: 2px solid var(--borde);
+}
+
+.marca__texto { min-width: 0; }
+.marca h2 { font-family: var(--display); font-size: 1.02rem; margin: 0; line-height: 1.1; white-space: nowrap; }
+.marca p { margin: 0; font-size: .72rem; color: var(--tinta-suave); }
+
+/* con barra lateral, la marca ya está a la izquierda: la cabecera
+   pasa a nombrar la pantalla en la que estás */
+.cabecera-app .marca { display: flex; }
+.cabecera-app .titulo-pantalla { display: none; font-family: var(--display); font-size: 1.1rem; margin: 0; }
+
+@container dispositivo (min-width: 56rem) {
+  .cabecera-app .marca { display: none; }
+  .cabecera-app .titulo-pantalla { display: block; }
+  .cabecera-app { border-bottom-color: var(--borde); }
+}
+
+.cabecera__acciones { display: flex; align-items: center; gap: 8px; flex: none; }
+
+.redondo {
+  width: 38px; height: 38px; flex: none;
+  border-radius: 50%;
+  border: 2px solid var(--borde);
+  background: var(--superficie);
+  font-size: 1.02rem; line-height: 1; cursor: pointer;
+}
+
+/* el botón de menú solo existe cuando la navegación se ha plegado */
+.abrir-cajon { display: none; }
+@container dispositivo (max-height: 32rem) and (orientation: landscape) {
+  .abrir-cajon { display: block; }
+  .cabecera-app { padding: 7px 14px; }
+  .marca p { display: none; }
+}
+
+/* ============================================================
+   NAVEGACIÓN — un solo marcado, cuatro aspectos
+   ============================================================ */
+
+.navegacion {
+  background: var(--superficie);
+  border-top: 2px solid var(--borde);
+  padding: 6px 8px max(6px, env(safe-area-inset-bottom, 0px));
+}
+
+.navegacion__marca { display: none; }
+
+.navegacion ul {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; justify-content: space-around; align-items: stretch; gap: 2px;
+}
+
+.navegacion__pie { display: none; }
+
+.nav-boton {
+  font: inherit;
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: var(--tinta-suave);
+  border-radius: var(--radio-chico);
+  padding: 7px 6px;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  width: 100%;
+  min-height: 48px;               /* dedo */
+}
+
+.nav-boton__icono { font-size: 1.28rem; line-height: 1; }
+.nav-boton__texto { font-size: .66rem; font-weight: 800; letter-spacing: .01em; }
+
+.nav-boton[aria-current="page"] { color: var(--tinta); background: var(--crema); }
+.nav-boton[aria-current="page"] .nav-boton__icono { transform: translateY(-1px); }
+.nav-boton:focus-visible { outline: 3px solid var(--cielo); outline-offset: -2px; }
+
+/* En móvil pequeño, solo iconos: el texto no cabe sin apretujarse. */
+@container dispositivo (max-width: 26rem) {
+  .nav-boton__texto { display: none; }
+  .nav-boton { min-height: 44px; }
+}
+
+/* ---- lateral de iconos ---- */
+@container dispositivo (min-width: 56rem) {
+  .navegacion {
+    border-top: none;
+    border-right: 2px solid var(--borde);
+    padding: 12px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .navegacion ul { flex-direction: column; justify-content: flex-start; gap: 4px; }
+  .navegacion__marca { display: flex; justify-content: center; padding: 4px 0 8px; }
+  .navegacion__pie { display: block; margin-top: auto; border-top: 2px solid var(--borde); padding-top: 10px; }
+  .nav-boton { padding: 9px 4px; }
+  .nav-boton__texto { font-size: .6rem; }
+}
+
+/* ---- lateral con texto ---- */
+@container dispositivo (min-width: 75rem) {
+  .navegacion { padding: 14px 12px; }
+  .navegacion__marca { justify-content: flex-start; gap: 10px; padding: 4px 8px 14px; }
+  .nav-boton {
+    grid-template-columns: 26px minmax(0, 1fr);
+    justify-items: start;
+    align-items: center;
+    gap: 11px;
+    padding: 10px 12px;
+    text-align: left;
+  }
+  .nav-boton__texto { font-size: .92rem; font-weight: 700; letter-spacing: 0; }
+  .nav-boton[aria-current="page"] {
+    background: var(--crema);
+    box-shadow: inset 3px 0 0 var(--color-modulo, var(--coral));
+  }
+}
+
+/* ---- cajón ---- */
+.cajon {
+  position: absolute;
+  inset: 0;
+  display: none;
+  z-index: 5;
+}
+
+.cajon[data-abierto="si"] { display: block; }
+.cajon__velo { position: absolute; inset: 0; background: rgba(43, 52, 64, .45); border: none; width: 100%; cursor: pointer; }
+
+.cajon__panel {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: min(260px, 72%);
+  background: var(--superficie);
+  border-right: 2px solid var(--borde);
+  padding: 12px;
+  overflow-y: auto;
+}
+
+.cajon__panel ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+
+.cajon__panel .nav-boton {
+  grid-template-columns: 26px minmax(0, 1fr);
+  justify-items: start;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 12px;
+  text-align: left;
+}
+
+.cajon__panel .nav-boton__texto { display: block; font-size: .92rem; font-weight: 700; }
+
+/* ============================================================
+   ÁREA DE TRABAJO
+   ============================================================ */
+
+.trabajo {
+  overflow-y: auto;
+  padding: 14px 16px max(16px, env(safe-area-inset-bottom, 0px));
+  display: grid;
+  align-content: start;
+
+  /* La ÚNICA container query que en producción también será container
+     query: la tarjeta pregunta por su caja, no por la ventana, porque
+     su ancho depende de si hay barra lateral y columna auxiliar. */
+  /* De tamaño, no solo de ancho: la tarjeta necesita preguntar
+     también por el alto para decidir si se apila o no. */
+  container-type: size;
+  container-name: trabajo;
+}
+
+/* Con alto de sobra, la actividad se centra en vez de quedarse
+   pegada arriba con medio panel vacío debajo. */
+@container dispositivo (min-height: 40rem) {
+  .trabajo { align-content: center; }
+}
+
+.panel {
+  background: var(--superficie);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 16px;
+  /* width:100% no es redundante: con margin auto dentro de un grid, el
+     panel se encogería a su contenido en vez de ocupar la pista. */
+  width: 100%;
+  max-width: 46rem;
+  margin-inline: auto;
+}
+
+/* ---------- índice de módulos ---------- */
+
+.saludo { font-family: var(--display); font-size: 1.2rem; margin: 0 0 3px; }
+.saludo-sub { margin: 0 0 14px; color: var(--tinta-suave); font-size: .88rem; }
+
+.modulos { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+
+@container trabajo (min-width: 34rem) {
+  .modulos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* El panel crece con su caja: en tablet vertical la escena tiene que
+   verse grande, que es la razón de usar una tablet. */
+@container trabajo (min-width: 34rem) and (orientation: portrait) {
+  .panel { max-width: 40rem; padding: 20px; }
+}
+
+.modulo {
+  width: 100%; text-align: left; font: inherit; cursor: pointer;
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  column-gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  border: 2px solid var(--borde);
+  border-left: 6px solid var(--color-modulo, var(--borde));
+  border-radius: var(--radio-chico);
+  background: var(--superficie);
+  min-height: 48px;
+}
+
+.modulo__icono { grid-row: 1 / 3; font-size: 1.44rem; }
+.modulo__nombre { font-family: var(--display); font-size: 1rem; }
+.modulo__que { font-size: .76rem; color: var(--tinta-suave); }
+
+/* ---------- tarjeta de vocabulario ---------- */
+
+.tarjeta { display: grid; gap: 14px; }
+
+/* Lado a lado solo si el área de trabajo es MÁS ANCHA QUE ALTA.
+   El ancho por sí solo engaña: una tablet en vertical tiene 788px de
+   área de trabajo, de sobra para dos columnas, pero ahí el alto no es
+   el recurso escaso y la escena debe salir grande. En apaisado, y en
+   escritorio con barra lateral, es al revés. */
+@container trabajo (min-width: 34rem) and (orientation: landscape) {
+  .tarjeta { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); align-items: center; }
+}
+
+.escena {
+  background: var(--crema);
+  border: 2px solid var(--borde);
+  border-radius: var(--radio-chico);
+  overflow: hidden;
+}
+
+.escena svg { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; }
+
+.pregunta { display: grid; gap: 11px; align-content: start; }
+
+.pregunta__que { font-family: var(--display); font-size: 1.14rem; margin: 0; }
+
+.escuchar {
+  justify-self: start;
+  display: inline-flex; align-items: center; gap: 8px;
+  font: inherit; font-weight: 800; font-size: .88rem;
+  background: #EAF1FF; color: var(--cielo);
+  border: none; border-radius: 999px;
+  padding: 10px 16px; min-height: 44px; cursor: pointer;
+}
+
+.campo {
+  font: inherit; font-size: 1.06rem; font-weight: 700;
+  padding: 13px 15px; min-height: 50px;
+  border: 2px solid var(--borde); border-radius: var(--radio-chico);
+  background: var(--superficie); color: var(--tinta); width: 100%;
+}
+
+.campo:focus-visible { outline: 3px solid var(--cielo); outline-offset: 1px; }
+
+.principal {
+  font: inherit; font-weight: 800; font-size: 1.04rem;
+  background: var(--coral); color: #FFF;
+  border: none; border-radius: 999px;
+  padding: 14px 20px; min-height: 52px; width: 100%;
+  box-shadow: 0 4px 0 var(--coral-oscuro);
+  cursor: pointer;
+}
+
+.apoyos { display: grid; gap: 5px; margin: 0; padding: 0; list-style: none; }
+
+.apoyo {
+  display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 8px;
+  font-size: .86rem; align-items: baseline;
+}
+
+.apoyo__idioma { color: var(--tinta-suave); font-weight: 700; font-size: .74rem; text-transform: uppercase; letter-spacing: .05em; }
+.apoyo__texto { font-weight: 700; }
+
+/* ============================================================
+   COLUMNA AUXILIAR
+   ============================================================ */
+
+.auxiliar { padding: 14px 16px 14px 0; overflow-y: auto; }
+
+.ficha {
+  background: var(--superficie);
+  border: 2px solid var(--borde);
+  border-radius: var(--radio-chico);
+  padding: 13px 15px;
+  margin-bottom: 12px;
+}
+
+.ficha h3 {
+  margin: 0 0 8px;
+  font-size: .68rem; font-weight: 800;
+  letter-spacing: .11em; text-transform: uppercase;
+  color: var(--tinta-suave);
+}
+
+.ficha p { margin: 0; font-size: .86rem; line-height: 1.45; }
+.ficha b { font-family: var(--display); font-size: 1.02rem; }
+
+.barra { height: 9px; border-radius: 999px; background: var(--borde); overflow: hidden; margin: 8px 0 5px; }
+.barra span { display: block; height: 100%; width: 42%; border-radius: 999px; background: var(--menta); }
+
+/* ============================================================
+   NOTAS DEL MOCKUP
+   ============================================================ */
+
+.notas { display: flex; flex-direction: column; gap: 12px; }
+
+.nota {
+  background: var(--superficie);
+  border: 2px solid var(--mesa-linea);
+  border-radius: var(--radio-chico);
+  padding: 13px 15px;
+}
+
+.nota h3 { margin: 0 0 6px; font-family: var(--display); font-size: 1rem; }
+.nota p { margin: 0 0 8px; font-size: .84rem; line-height: 1.5; color: var(--mesa-suave); }
+.nota p:last-child { margin-bottom: 0; }
+.nota b { color: var(--mesa-tinta); }
+
+.nota code, .medida code {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-size: .82em;
+  background: var(--mesa);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+.regla { list-style: none; margin: 0; padding: 0; font-size: .8rem; }
+.regla li { display: grid; grid-template-columns: 5.6rem minmax(0, 1fr); gap: 8px; padding: 5px 0; border-top: 1px solid var(--mesa-linea); }
+.regla li:first-child { border-top: none; }
+.regla b { font-variant-numeric: tabular-nums; }
+.regla span { color: var(--mesa-suave); }
+.regla li[data-activa="si"] { color: var(--mesa-tinta); }
+.regla li[data-activa="si"] span { color: var(--mesa-tinta); font-weight: 700; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+</style>
+
+<div class="taller">
+
+  <div class="titular">
+    <h1>Armazón adaptativo</h1>
+    <p>Una sola rejilla y una sola navegación, repartidas de cuatro maneras según el espacio. Cambia de formato y mira cómo la barra pasa de abajo a un lado, gana texto, y se pliega a un cajón cuando no hay alto.</p>
+  </div>
+
+  <div class="mandos">
+    <div class="mandos__grupo" id="dispositivos">
+      <span class="mandos__et">Formato</span>
+    </div>
+    <div class="mandos__sep" aria-hidden="true"></div>
+    <div class="mandos__grupo">
+      <span class="mandos__et">Pantalla</span>
+      <button class="chip" type="button" data-pantalla="indice" aria-pressed="false">Índice</button>
+      <button class="chip" type="button" data-pantalla="tarjeta" aria-pressed="true">Tarjeta</button>
+    </div>
+    <div class="mandos__sep" aria-hidden="true"></div>
+    <div class="mandos__grupo">
+      <span class="mandos__et">uiLocale</span>
+      <button class="chip" type="button" data-idioma="es" aria-pressed="true">es</button>
+      <button class="chip" type="button" data-idioma="eu" aria-pressed="false">eu</button>
+      <button class="chip" type="button" data-idioma="en" aria-pressed="false">en</button>
+    </div>
+  </div>
+
+  <div class="escenario-mockup">
+
+    <div class="lienzo">
+      <p class="medida" id="medida">…</p>
+      <div class="hueco" id="hueco">
+        <div class="marco" id="marco">
+          <div class="armazon">
+
+            <!-- ============ CABECERA ============ -->
+            <header class="cabecera-app">
+              <div class="marca">
+                <span class="logo" aria-hidden="true"></span>
+                <div class="marca__texto">
+                  <h2 data-t="app.titulo">Ayuda de Sofía</h2>
+                  <p data-t="app.lema">Tus herramientas</p>
+                </div>
+              </div>
+              <h2 class="titulo-pantalla" id="titulo-pantalla" data-t="nav.ingles">Inglés</h2>
+              <div class="cabecera__acciones">
+                <button class="redondo abrir-cajon" type="button" id="abrir-cajon" data-t-attr="aria-label:nav.menu">☰</button>
+                <button class="redondo" type="button" data-t-attr="aria-label:nav.ajustes">⚙️</button>
+              </div>
+            </header>
+
+            <!-- ============ NAVEGACIÓN ============ -->
+            <nav class="navegacion" data-t-attr="aria-label:nav.principal">
+              <div class="navegacion__marca">
+                <span class="logo" aria-hidden="true"></span>
+                <div class="marca__texto">
+                  <h2 style="font-family:var(--display);font-size:.98rem;margin:0" data-t="app.titulo">Ayuda de Sofía</h2>
+                </div>
+              </div>
+              <ul id="nav-lista"></ul>
+              <div class="navegacion__pie">
+                <button class="nav-boton" type="button">
+                  <span class="nav-boton__icono" aria-hidden="true">👤</span>
+                  <span class="nav-boton__texto">Sofía</span>
+                </button>
+              </div>
+            </nav>
+
+            <!-- ============ TRABAJO ============ -->
+            <main class="trabajo">
+
+              <!-- índice -->
+              <section class="panel" id="pantalla-indice" hidden>
+                <p class="saludo" data-t="hub.saludo">¡Hola, Sofía! 👋</p>
+                <p class="saludo-sub" data-t="hub.pregunta">¿Qué quieres hacer hoy?</p>
+                <ul class="modulos" id="lista-modulos"></ul>
+              </section>
+
+              <!-- tarjeta -->
+              <section class="panel" id="pantalla-tarjeta">
+                <div class="tarjeta">
+
+                  <div class="escena">
+                    <!-- Escena en grises con el concepto en color: la idea
+                         visual del módulo lingüístico, no de toda la app. -->
+                    <svg viewBox="0 0 400 300" role="img" aria-label="">
+                      <rect width="400" height="300" fill="#F2F0ED"/>
+                      <rect y="215" width="400" height="85" fill="#DCD8D3"/>
+                      <!-- casa -->
+                      <rect x="34" y="120" width="104" height="98" fill="#CFCAC4"/>
+                      <path d="M24 122 L86 74 L148 122 Z" fill="#B9B3AC"/>
+                      <rect x="72" y="162" width="30" height="56" fill="#A8A29A"/>
+                      <!-- árbol -->
+                      <rect x="326" y="150" width="14" height="70" fill="#B0AAA3"/>
+                      <circle cx="333" cy="132" r="38" fill="#C6C1BA"/>
+                      <!-- niña -->
+                      <circle cx="215" cy="128" r="19" fill="#C4BFB8"/>
+                      <path d="M196 152 h38 v52 h-38 z" fill="#B5AFA8"/>
+                      <rect x="200" y="204" width="12" height="26" fill="#ADA79F"/>
+                      <rect x="218" y="204" width="12" height="26" fill="#ADA79F"/>
+                      <!-- EL PERRO, en color -->
+                      <g>
+                        <ellipse cx="286" cy="205" rx="34" ry="20" fill="#FF6B6B"/>
+                        <circle cx="316" cy="188" r="16" fill="#FF6B6B"/>
+                        <path d="M308 176 q-6 -16 6 -16 q8 2 6 15 z" fill="#E24E4E"/>
+                        <circle cx="322" cy="185" r="3" fill="#3A2A2A"/>
+                        <path d="M330 190 q5 0 6 4" stroke="#E24E4E" stroke-width="4" fill="none" stroke-linecap="round"/>
+                        <rect x="266" y="220" width="9" height="18" rx="4" fill="#E24E4E"/>
+                        <rect x="296" y="220" width="9" height="18" rx="4" fill="#E24E4E"/>
+                        <path d="M254 198 q-16 -12 -10 -24" stroke="#FF6B6B" stroke-width="9" fill="none" stroke-linecap="round"/>
+                      </g>
+                    </svg>
+                  </div>
+
+                  <div class="pregunta">
+                    <p class="pregunta__que" data-t="tarjetas.que">¿Qué es esto en inglés?</p>
+                    <button class="escuchar" type="button">
+                      <span aria-hidden="true">🔊</span>
+                      <span data-t="tarjetas.escuchar">Escúchala otra vez</span>
+                    </button>
+                    <input class="campo" type="text" data-t-attr="placeholder:tarjetas.escribe" placeholder="Escríbela aquí" aria-label="Respuesta">
+                    <button class="principal" type="button" data-t="tarjetas.comprobar">Comprobar</button>
+
+                    <ul class="apoyos" id="apoyos"></ul>
+                  </div>
+
+                </div>
+              </section>
+            </main>
+
+            <!-- ============ AUXILIAR ============ -->
+            <aside class="auxiliar">
+              <div class="ficha">
+                <h3 data-t="aux.progreso">Progreso de hoy</h3>
+                <p><b>12</b> <span data-t="aux.de">de</span> <b>30</b></p>
+                <div class="barra"><span></span></div>
+                <p style="font-size:.78rem;color:var(--tinta-suave)" data-t="aux.animo">Vas a buen ritmo.</p>
+              </div>
+              <div class="ficha">
+                <h3 data-t="aux.tema">Tema</h3>
+                <p><b data-t="tema.animales">Animales</b></p>
+                <p style="font-size:.78rem;color:var(--tinta-suave)"><span data-t="aux.quedan">Te quedan</span> 18</p>
+              </div>
+              <div class="ficha">
+                <h3 data-t="aux.ayuda">Una ayuda</h3>
+                <p style="font-size:.82rem;color:var(--tinta-suave)" data-t="aux.pista">Si no la coges, escúchala otra vez antes de mirar la respuesta.</p>
+              </div>
+            </aside>
+
+            <!-- ============ CAJÓN ============ -->
+            <div class="cajon" id="cajon" data-abierto="no">
+              <button class="cajon__velo" type="button" id="cerrar-cajon" aria-label="Cerrar"></button>
+              <div class="cajon__panel">
+                <ul id="cajon-lista"></ul>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notas">
+
+      <div class="nota">
+        <h3>Dónde está cada ruptura</h3>
+        <ul class="regla" id="regla">
+          <li data-rango="0"><b>&lt; 37.5rem</b><span>Barra inferior. Bajo 26rem, solo iconos.</span></li>
+          <li data-rango="1"><b>37.5rem</b><span>Barra inferior con etiquetas. Una columna ancha.</span></li>
+          <li data-rango="2"><b>56rem</b><span>Lateral de iconos. Cabecera nombra la pantalla.</span></li>
+          <li data-rango="3"><b>75rem</b><span>Lateral con texto + columna auxiliar.</span></li>
+          <li data-rango="4"><b>alto &lt; 32rem</b><span>Tumbado: la navegación se pliega al cajón ☰.</span></li>
+        </ul>
+      </div>
+
+      <div class="nota">
+        <h3>Lo que no se ve pero es el fondo del asunto</h3>
+        <p><b>Es el mismo marcado en los cuatro casos.</b> Una lista de enlaces que cambia de sitio con <code>grid-template-areas</code>. El DOM no se mueve, así que al girar la tablet no hay salto, no se pierde el foco del teclado y no hay tres navegaciones que mantener.</p>
+        <p>El único JavaScript nuevo frente a hoy es abrir y cerrar el cajón.</p>
+      </div>
+
+      <div class="nota">
+        <h3>La columna auxiliar la pone el módulo</h3>
+        <p>Solo aparece a partir de 75rem, y <b>solo si el módulo tiene algo que decir</b>. Si no, el área de trabajo ocupa su sitio. No se rellena por rellenar: ese es el error que convierte un escritorio en un panel de control lleno de widgets.</p>
+      </div>
+
+      <div class="nota">
+        <h3>La tarjeta pregunta por su caja</h3>
+        <p>Escena y respuesta se ponen lado a lado <b>según la forma de su contenedor</b>, no de la ventana: hace falta ancho <b>y</b> que sea más ancho que alto. Por eso en tablet vertical la escena sale grande y apilada, y en apaisado o en escritorio con barra lateral se pone al lado.</p>
+        <p>El ancho a secas engañaba: una tablet en vertical tiene área de trabajo de sobra para dos columnas, pero ahí el alto no es lo escaso. Es la única container query que en producción también será container query.</p>
+      </div>
+
+      <div class="nota">
+        <h3>uiLocale, en marcha</h3>
+        <p>Cambia el idioma arriba y fíjate en las etiquetas de las traducciones: <b>«Castellano / Euskara» pasan a «Spanish / Basque»</b>. Hoy están escritas a mano en el HTML y se quedarían en castellano.</p>
+        <p>Lo que <b>no</b> cambia es <code>dog</code>: eso es contenido académico, no interfaz.</p>
+      </div>
+
+      <div class="nota">
+        <h3>Esto es un mockup</h3>
+        <p>Dentro del marco las rupturas son container queries, para que se puedan comparar sin abrir cinco ventanas. <b>En producción son media queries con los mismos valores.</b> Nada de esto está en la app.</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   TEXTOS — la misma forma que propone docs/interfaz.md:
+   primero la clave, los tres idiomas en la misma línea, para
+   que una traducción que falta se vea de un vistazo.
+   ============================================================ */
+const T = {
+  "app.titulo":       { es: "Ayuda de Sofía", eu: "Sofiaren laguntza", en: "Sofía's Toolbox" },
+  "app.lema":         { es: "Tus herramientas", eu: "Zure tresnak", en: "Your tools" },
+
+  "nav.inicio":       { es: "Inicio", eu: "Hasiera", en: "Home" },
+  "nav.ingles":       { es: "Inglés", eu: "Ingelesa", en: "English" },
+  "nav.mates":        { es: "Matemagia", eu: "Matemagia", en: "Mathmagic" },
+  "nav.diccionario":  { es: "Diccionario", eu: "Hiztegia", en: "Dictionary" },
+  "nav.principal":    { es: "Navegación principal", eu: "Nabigazio nagusia", en: "Main navigation" },
+  "nav.menu":         { es: "Menú", eu: "Menua", en: "Menu" },
+  "nav.ajustes":      { es: "Ajustes", eu: "Ezarpenak", en: "Settings" },
+
+  "hub.saludo":       { es: "¡Hola, Sofía! 👋", eu: "Kaixo, Sofia! 👋", en: "Hi, Sofía! 👋" },
+  "hub.pregunta":     { es: "¿Qué quieres hacer hoy?", eu: "Zer egin nahi duzu gaur?", en: "What shall we do today?" },
+
+  "modulo.ingles.que":      { es: "Palabras con dibujos", eu: "Hitzak marrazkiekin", en: "Words with pictures" },
+  "modulo.mates.que":       { es: "Sumas y restas con saltos", eu: "Batuketak eta kenketak jauzika", en: "Adding and subtracting in jumps" },
+  "modulo.diccionario.que": { es: "Una palabra, tres idiomas", eu: "Hitz bat, hiru hizkuntza", en: "One word, three languages" },
+  "modulo.inicio.que":      { es: "Todo lo que puedes hacer", eu: "Egin dezakezun guztia", en: "Everything you can do" },
+
+  "tarjetas.que":       { es: "¿Qué es esto en inglés?", eu: "Zer da hau ingelesez?", en: "What is this in English?" },
+  "tarjetas.escuchar":  { es: "Escúchala otra vez", eu: "Entzun berriro", en: "Listen again" },
+  "tarjetas.escribe":   { es: "Escríbela aquí", eu: "Idatzi hemen", en: "Type it here" },
+  "tarjetas.comprobar": { es: "Comprobar", eu: "Egiaztatu", en: "Check" },
+
+  /* Nombres de idioma: son INTERFAZ, así que siguen a uiLocale. */
+  "idioma.es": { es: "Castellano", eu: "Gaztelania", en: "Spanish" },
+  "idioma.eu": { es: "Euskara", eu: "Euskara", en: "Basque" },
+
+  "aux.progreso": { es: "Progreso de hoy", eu: "Gaurko aurrerapena", en: "Today's progress" },
+  "aux.de":       { es: "de", eu: "/", en: "of" },
+  "aux.animo":    { es: "Vas a buen ritmo.", eu: "Erritmo onean zoaz.", en: "Good pace." },
+  "aux.tema":     { es: "Tema", eu: "Gaia", en: "Theme" },
+  "aux.quedan":   { es: "Te quedan", eu: "Falta zaizkizu", en: "Left" },
+  "aux.ayuda":    { es: "Una ayuda", eu: "Laguntza bat", en: "A hint" },
+  "aux.pista":    { es: "Si no la coges, escúchala otra vez antes de mirar la respuesta.",
+                    eu: "Ez baduzu asmatzen, entzun berriro erantzuna ikusi aurretik.",
+                    en: "If it won't come, listen again before revealing it." },
+  "tema.animales": { es: "Animales", eu: "Animaliak", en: "Animals" }
+};
+
+let idioma = "es";
+const t = (clave) => (T[clave] && (T[clave][idioma] || T[clave].es)) || clave;
+
+/* ============================================================
+   MÓDULOS — una lista de datos, como modulos.js.
+   "roles" ya está aquí aunque hoy solo exista "alumno": es lo
+   que evita rehacer la navegación cuando llegue el tutor.
+   ============================================================ */
+const MODULOS = [
+  { id: "inicio",      icono: "🏠", color: "var(--tinta-suave)", clave: "nav.inicio",      roles: ["alumno", "tutor"] },
+  { id: "ingles",      icono: "🃏", color: "var(--coral)",       clave: "nav.ingles",      roles: ["alumno", "tutor"] },
+  { id: "mates",       icono: "✨", color: "var(--menta)",       clave: "nav.mates",       roles: ["alumno", "tutor"] },
+  { id: "diccionario", icono: "📖", color: "var(--cielo)",       clave: "nav.diccionario", roles: ["alumno", "tutor"] }
+];
+
+const perfil = { rol: "alumno", uiLocale: "es", learningLanguage: "en", supportLanguages: ["es", "eu"] };
+let moduloActivo = "ingles";
+
+/* ============================================================
+   FORMATOS
+   ============================================================ */
+const FORMATOS = [
+  { id: "escritorio", nombre: "Escritorio", detalle: "1440 × 900",  w: 1440, h: 900 },
+  { id: "tablet-h",   nombre: "Tablet ⇢",   detalle: "1180 × 820",  w: 1180, h: 820 },
+  { id: "tablet-v",   nombre: "Tablet ⇡",   detalle: "820 × 1180",  w: 820,  h: 1120 },
+  { id: "movil-g",    nombre: "Móvil ⇡",    detalle: "430 × 900",   w: 430,  h: 900 },
+  { id: "movil-p",    nombre: "Móvil pequeño", detalle: "360 × 760", w: 360, h: 760 },
+  { id: "movil-h",    nombre: "Móvil ⇢",    detalle: "740 × 360",   w: 740,  h: 360 }
+];
+
+let formato = FORMATOS[0];
+
+const marco = document.getElementById("marco");
+const hueco = document.getElementById("hueco");
+const medida = document.getElementById("medida");
+const cajon = document.getElementById("cajon");
+
+/* ---------- pintar la navegación (un solo sitio para las dos copias) ---------- */
+
+function botonDe(modulo) {
+  const boton = document.createElement("button");
+  boton.type = "button";
+  boton.className = "nav-boton";
+  boton.style.setProperty("--color-modulo", modulo.color);
+  if (modulo.id === moduloActivo) boton.setAttribute("aria-current", "page");
+  boton.innerHTML = '<span class="nav-boton__icono" aria-hidden="true"></span>' +
+                    '<span class="nav-boton__texto"></span>';
+  boton.querySelector(".nav-boton__icono").textContent = modulo.icono;
+  boton.querySelector(".nav-boton__texto").textContent = t(modulo.clave);
+  boton.addEventListener("click", () => {
+    moduloActivo = modulo.id;
+    cajon.dataset.abierto = "no";
+    pintar();
+  });
+  return boton;
+}
+
+function pintarNavegacion() {
+  const visibles = MODULOS.filter((m) => m.roles.includes(perfil.rol));
+  [document.getElementById("nav-lista"), document.getElementById("cajon-lista")].forEach((lista) => {
+    lista.innerHTML = "";
+    visibles.forEach((modulo) => {
+      const fila = document.createElement("li");
+      fila.appendChild(botonDe(modulo));
+      lista.appendChild(fila);
+    });
+  });
+}
+
+function pintarModulos() {
+  const lista = document.getElementById("lista-modulos");
+  lista.innerHTML = "";
+  MODULOS.filter((m) => m.id !== "inicio").forEach((modulo) => {
+    const fila = document.createElement("li");
+    const boton = document.createElement("button");
+    boton.type = "button";
+    boton.className = "modulo";
+    boton.style.setProperty("--color-modulo", modulo.color);
+    boton.innerHTML = '<span class="modulo__icono" aria-hidden="true"></span>' +
+                      '<span class="modulo__nombre"></span><span class="modulo__que"></span>';
+    boton.querySelector(".modulo__icono").textContent = modulo.icono;
+    boton.querySelector(".modulo__nombre").textContent = t(modulo.clave);
+    boton.querySelector(".modulo__que").textContent = t("modulo." + modulo.id + ".que");
+    fila.appendChild(boton);
+    lista.appendChild(fila);
+  });
+}
+
+/* Las filas de apoyo salen de supportLanguages, con la etiqueta
+   traducida: eso es lo que hoy está escrito a mano en el HTML. */
+function pintarApoyos() {
+  const apoyos = document.getElementById("apoyos");
+  const valores = { es: "perro", eu: "txakur" };
+  apoyos.innerHTML = "";
+  perfil.supportLanguages.forEach((codigo) => {
+    const fila = document.createElement("li");
+    fila.className = "apoyo";
+    fila.innerHTML = '<span class="apoyo__idioma"></span><span class="apoyo__texto"></span>';
+    fila.querySelector(".apoyo__idioma").textContent = t("idioma." + codigo);
+    const texto = fila.querySelector(".apoyo__texto");
+    texto.textContent = valores[codigo];
+    texto.lang = codigo;          /* el contenido lleva SU idioma */
+    apoyos.appendChild(fila);
+  });
+}
+
+function traducir() {
+  document.querySelectorAll("[data-t]").forEach((el) => { el.textContent = t(el.dataset.t); });
+  document.querySelectorAll("[data-t-attr]").forEach((el) => {
+    el.dataset.tAttr.split(";").forEach((par) => {
+      const [attr, clave] = par.split(":").map((x) => x.trim());
+      if (attr && clave) el.setAttribute(attr, t(clave));
+    });
+  });
+}
+
+/* ---------- formato ---------- */
+
+function ajustar() {
+  const disponible = hueco.clientWidth;
+  const anchoReal = formato.w + 18;            /* 18 = los dos bordes del marco */
+  const altoReal = formato.h + 18;
+  const escala = Math.min(1, disponible / anchoReal);
+  marco.style.width = formato.w + "px";
+  marco.style.height = formato.h + "px";
+  marco.style.transform = "scale(" + escala.toFixed(4) + ")";
+  marco.style.left = Math.max(0, (disponible - anchoReal * escala) / 2) + "px";
+  hueco.style.height = Math.round(altoReal * escala) + "px";
+  medida.innerHTML = "<code>" + formato.w + " × " + formato.h + "</code> · " +
+    Math.round(formato.w / 16 * 10) / 10 + "rem de ancho · vista al " + Math.round(escala * 100) + "%";
+
+  /* qué regla está mandando ahora */
+  const ancho = formato.w / 16;
+  const alto = formato.h / 16;
+  const tumbado = formato.w > formato.h;
+  let activa = 0;
+  if (tumbado && alto < 32) activa = 4;
+  else if (ancho >= 75) activa = 3;
+  else if (ancho >= 56) activa = 2;
+  else if (ancho >= 37.5) activa = 1;
+  document.querySelectorAll("#regla li").forEach((li) => {
+    li.dataset.activa = (Number(li.dataset.rango) === activa) ? "si" : "no";
+  });
+}
+
+function pintar() {
+  pintarNavegacion();
+  pintarModulos();
+  pintarApoyos();
+  traducir();
+  const modulo = MODULOS.find((m) => m.id === moduloActivo) || MODULOS[1];
+  document.getElementById("titulo-pantalla").textContent = t(modulo.clave);
+  ajustar();
+}
+
+/* ---------- mandos ---------- */
+
+const zonaDispositivos = document.getElementById("dispositivos");
+FORMATOS.forEach((f) => {
+  const boton = document.createElement("button");
+  boton.type = "button";
+  boton.className = "chip";
+  boton.setAttribute("aria-pressed", String(f.id === formato.id));
+  boton.innerHTML = f.nombre + "<small>" + f.detalle + "</small>";
+  boton.addEventListener("click", () => {
+    formato = f;
+    zonaDispositivos.querySelectorAll(".chip").forEach((c) => c.setAttribute("aria-pressed", "false"));
+    boton.setAttribute("aria-pressed", "true");
+    cajon.dataset.abierto = "no";
+    ajustar();
+  });
+  zonaDispositivos.appendChild(boton);
+});
+
+document.querySelectorAll("[data-pantalla]").forEach((boton) => {
+  boton.addEventListener("click", () => {
+    const cual = boton.dataset.pantalla;
+    document.querySelectorAll("[data-pantalla]").forEach((b) => b.setAttribute("aria-pressed", String(b === boton)));
+    document.getElementById("pantalla-indice").hidden = (cual !== "indice");
+    document.getElementById("pantalla-tarjeta").hidden = (cual !== "tarjeta");
+    if (cual === "indice") moduloActivo = "inicio";
+    if (cual === "tarjeta") moduloActivo = "ingles";
+    pintar();
+  });
+});
+
+document.querySelectorAll("[data-idioma]").forEach((boton) => {
+  boton.addEventListener("click", () => {
+    idioma = boton.dataset.idioma;
+    perfil.uiLocale = idioma;
+    document.querySelectorAll("[data-idioma]").forEach((b) => b.setAttribute("aria-pressed", String(b === boton)));
+    pintar();
+  });
+});
+
+document.getElementById("abrir-cajon").addEventListener("click", () => { cajon.dataset.abierto = "si"; });
+document.getElementById("cerrar-cajon").addEventListener("click", () => { cajon.dataset.abierto = "no"; });
+
+window.addEventListener("resize", ajustar);
+pintar();
+</script>

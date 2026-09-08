@@ -1,0 +1,583 @@
+<title>El mapa de palabras</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap">
+
+<style>
+/* ============================================================
+   MOCKUP DEL PANEL DE INICIO — Ayuda de Sofía
+   ------------------------------------------------------------
+   Tokens de la app. La idea de fondo: el progreso NO se cuenta,
+   se ve. Cada palabra es un punto gris que se vuelve de color
+   cuando ella se la sabe, igual que las escenas de las tarjetas.
+   "Añade color a tu vida" deja de ser un lema y pasa a ser el
+   gráfico.
+   ============================================================ */
+
+:root {
+  --crema: #FFF7EF;
+  --superficie: #FFFFFF;
+  --tinta: #2B3440;
+  --tinta-suave: #6B7683;
+  --borde: #ECE3D8;
+
+  --coral: #FF6B6B;
+  --coral-oscuro: #E24E4E;
+  --menta: #2A9D8F;
+  --sol: #F4B942;
+  --cielo: #3D7EE8;
+
+  /* los cuatro estados del progreso, y su gris de partida */
+  --sin-tocar: #DED8D0;
+  --aprendiendo: #F4B942;
+  --sabida: #2A9D8F;
+  --repasar: #FF6B6B;
+
+  --sombra: 0 2px 4px rgba(43, 52, 64, .05), 0 10px 30px rgba(43, 52, 64, .08);
+  --radio: 22px;
+  --radio-chico: 14px;
+
+  --display: "Baloo 2", "Trebuchet MS", system-ui, sans-serif;
+  --texto: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --mesa: #E9E5DF;
+  --mesa-linea: #D3CDC4;
+  --mesa-tinta: #3A3630;
+  --mesa-suave: #6E675E;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--mesa);
+  color: var(--mesa-tinta);
+  font-family: var(--texto);
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+  padding: 22px 20px 60px;
+}
+
+/* ============================================================
+   MESA
+   ============================================================ */
+
+.taller { max-width: 1180px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+
+.titular { max-width: 66ch; display: flex; flex-direction: column; gap: 6px; }
+.titular h1 { font-family: var(--display); font-size: 1.6rem; margin: 0; }
+.titular p { margin: 0; color: var(--mesa-suave); line-height: 1.5; }
+
+.mandos {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px;
+  padding: 11px 13px;
+  background: var(--superficie);
+  border: 2px solid var(--mesa-linea);
+  border-radius: var(--radio-chico);
+}
+
+.mandos__grupo { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+
+.mandos__et {
+  font-size: .66rem; font-weight: 800; letter-spacing: .11em;
+  text-transform: uppercase; color: var(--mesa-suave); margin-right: 2px;
+}
+
+.mandos__sep { width: 1px; align-self: stretch; background: var(--mesa-linea); }
+
+.chip {
+  font: inherit; font-size: .84rem; font-weight: 700; cursor: pointer;
+  border: 2px solid var(--mesa-linea); background: var(--superficie);
+  color: var(--mesa-suave); border-radius: 999px; padding: 6px 13px; white-space: nowrap;
+}
+.chip[aria-pressed="true"] { background: var(--mesa-tinta); border-color: var(--mesa-tinta); color: #FFF; }
+.chip:focus-visible { outline: 3px solid var(--cielo); outline-offset: 2px; }
+
+/* ============================================================
+   LA APP
+   ============================================================ */
+
+.marco {
+  background: var(--crema);
+  border: 2px solid var(--mesa-linea);
+  border-radius: 18px;
+  padding: 18px;
+  overflow: hidden;
+}
+
+.panel {
+  background: var(--superficie);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 20px;
+  max-width: 880px;
+  margin-inline: auto;
+  color: var(--tinta);
+}
+
+.saludo { font-family: var(--display); font-size: 1.35rem; margin: 0 0 2px; }
+.saludo-sub { margin: 0 0 18px; color: var(--tinta-suave); font-size: .9rem; }
+
+/* ---------- LO QUE TOCA: la única llamada a la acción ---------- */
+
+.toca {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: var(--radio-chico);
+  background: var(--crema);
+  border: 2px solid var(--borde);
+  border-left: 6px solid var(--color-acento, var(--coral));
+  margin-bottom: 18px;
+}
+
+.toca__icono { font-size: 2rem; line-height: 1; text-align: center; }
+.toca__que { font-family: var(--display); font-size: 1.14rem; margin: 0 0 2px; }
+.toca__detalle { margin: 0; font-size: .86rem; color: var(--tinta-suave); }
+
+.toca__boton {
+  font: inherit; font-weight: 800; font-size: .95rem;
+  background: var(--color-acento, var(--coral)); color: #FFF;
+  border: none; border-radius: 999px;
+  padding: 13px 22px; min-height: 48px; cursor: pointer;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, .13);
+  white-space: nowrap;
+}
+.toca__boton:active { transform: translateY(2px); box-shadow: none; }
+
+@media (max-width: 34rem) {
+  .toca { grid-template-columns: 44px minmax(0, 1fr); }
+  .toca__boton { grid-column: 1 / -1; width: 100%; }
+}
+
+/* ---------- EL MAPA DE PALABRAS ---------- */
+
+.seccion__titulo {
+  font-size: .7rem; font-weight: 800; letter-spacing: .11em;
+  text-transform: uppercase; color: var(--tinta-suave);
+  margin: 0 0 10px;
+}
+
+.mapa {
+  list-style: none; margin: 0 0 8px; padding: 0;
+  display: grid; gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+}
+
+.tema {
+  border: 2px solid var(--borde);
+  border-radius: var(--radio-chico);
+  padding: 11px 12px 12px;
+  background: var(--superficie);
+}
+
+.tema__cabecera {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 8px; margin-bottom: 8px;
+}
+
+.tema__nombre { font-family: var(--display); font-size: .98rem; }
+
+.tema__cuenta {
+  font-size: .74rem; font-weight: 800; color: var(--tinta-suave);
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+
+/* Un punto por palabra. Gris = sin tocar; el color aparece cuando
+   se la sabe. Es el mismo gesto que las escenas de las tarjetas. */
+.puntos { display: flex; flex-wrap: wrap; gap: 3px; }
+
+.punto {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--sin-tocar);
+  flex: none;
+}
+
+.punto--learning { background: var(--aprendiendo); }
+.punto--known    { background: var(--sabida); }
+.punto--review   { background: var(--repasar); }
+
+/* Con muchas palabras los puntos dejan de leerse: barra apilada. */
+.barra {
+  display: flex; height: 10px; border-radius: 999px; overflow: hidden;
+  background: var(--sin-tocar);
+}
+.barra span { display: block; height: 100%; }
+.barra .known    { background: var(--sabida); }
+.barra .learning { background: var(--aprendiendo); }
+.barra .review   { background: var(--repasar); }
+
+.leyenda {
+  display: flex; flex-wrap: wrap; gap: 6px 16px;
+  margin: 12px 0 0; padding: 0; list-style: none;
+  font-size: .76rem; color: var(--tinta-suave);
+}
+.leyenda li { display: flex; align-items: center; gap: 6px; }
+.leyenda .punto { width: 10px; height: 10px; }
+
+/* ---------- MATEMAGIA: la tabla que cojea ---------- */
+
+.tablas { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+
+.tabla {
+  width: 38px; height: 38px; flex: none;
+  display: grid; place-items: center;
+  border: 2px solid var(--borde); border-radius: 11px;
+  font-family: var(--display); font-size: .95rem;
+  background: var(--superficie); color: var(--tinta-suave);
+}
+.tabla[data-nivel="verde"] { background: var(--menta); border-color: var(--menta); color: #FFF; }
+.tabla[data-nivel="media"] { background: #FDF3DC; border-color: var(--sol); color: #7A5600; }
+.tabla[data-nivel="floja"] { background: #FFE9E9; border-color: var(--coral); color: var(--coral-oscuro); }
+
+/* ---------- VISTA DE ADULTOS ---------- */
+
+.cifras {
+  list-style: none; margin: 0 0 16px; padding: 0;
+  display: grid; gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+}
+
+.cifra {
+  border: 2px solid var(--borde); border-radius: var(--radio-chico);
+  padding: 11px 13px;
+}
+.cifra b { display: block; font-family: var(--display); font-size: 1.6rem; line-height: 1.1; }
+.cifra span { font-size: .76rem; color: var(--tinta-suave); font-weight: 700; }
+
+.tabla-datos { width: 100%; border-collapse: collapse; font-size: .86rem; }
+.tabla-datos th, .tabla-datos td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--borde); }
+.tabla-datos th {
+  font-size: .68rem; letter-spacing: .09em; text-transform: uppercase;
+  color: var(--tinta-suave);
+}
+.tabla-datos td:last-child, .tabla-datos th:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+.tabla-datos tr:last-child td { border-bottom: none; }
+
+.marco-tabla { border: 2px solid var(--borde); border-radius: var(--radio-chico); overflow: hidden; margin-bottom: 16px; }
+
+.pendiente {
+  border: 2px dashed var(--borde);
+  border-radius: var(--radio-chico);
+  padding: 14px 16px;
+  color: var(--tinta-suave);
+  font-size: .86rem;
+  line-height: 1.5;
+}
+.pendiente b { color: var(--tinta); }
+
+.vacio {
+  text-align: center;
+  padding: 22px 16px;
+  color: var(--tinta-suave);
+  font-size: .9rem;
+  line-height: 1.55;
+}
+.vacio__emoji { font-size: 2.2rem; display: block; margin-bottom: 8px; }
+
+/* ============================================================
+   NOTAS
+   ============================================================ */
+
+.notas { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+
+.nota {
+  background: var(--superficie);
+  border: 2px solid var(--mesa-linea);
+  border-radius: var(--radio-chico);
+  padding: 14px 16px;
+}
+.nota h3 { margin: 0 0 6px; font-family: var(--display); font-size: 1rem; }
+.nota p { margin: 0 0 8px; font-size: .85rem; line-height: 1.5; color: var(--mesa-suave); }
+.nota p:last-child { margin-bottom: 0; }
+.nota b { color: var(--mesa-tinta); }
+.nota code {
+  font-family: ui-monospace, Menlo, monospace; font-size: .82em;
+  background: var(--mesa); border-radius: 4px; padding: 1px 5px;
+}
+.nota--aviso { border-color: var(--coral); }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="taller">
+
+  <div class="titular">
+    <h1>El mapa de palabras</h1>
+    <p>Panel de inicio. La idea: el progreso no se cuenta, se ve — cada palabra es un punto gris que se vuelve de color cuando se la sabe. El mismo gesto que las escenas de las tarjetas, aplicado al avance.</p>
+  </div>
+
+  <div class="mandos">
+    <div class="mandos__grupo">
+      <span class="mandos__et">Quién mira</span>
+      <button class="chip" type="button" data-rol="alumno" aria-pressed="true">Sofía</button>
+      <button class="chip" type="button" data-rol="tutor" aria-pressed="false">Sus padres</button>
+    </div>
+    <div class="mandos__sep" aria-hidden="true"></div>
+    <div class="mandos__grupo">
+      <span class="mandos__et">Cuánto lleva usándola</span>
+      <button class="chip" type="button" data-momento="primer" aria-pressed="false">Primer día</button>
+      <button class="chip" type="button" data-momento="semana" aria-pressed="true">Una semana</button>
+      <button class="chip" type="button" data-momento="meses" aria-pressed="false">Tres meses</button>
+    </div>
+  </div>
+
+  <div class="marco">
+    <div class="panel" id="panel"></div>
+  </div>
+
+  <div class="notas">
+
+    <div class="nota">
+      <h3>Por qué puntos y no porcentajes</h3>
+      <p>Un punto <b>es</b> una palabra: si hay 14 puntos, hay 14 palabras. Nada está redondeado ni inventado, y se lee de un vistazo sin saber leer números.</p>
+      <p>Y el gesto es el del proyecto: gris que se vuelve color. <b>«Añade color a tu vida» deja de ser un lema y pasa a ser el gráfico.</b></p>
+    </div>
+
+    <div class="nota">
+      <h3>Dos lectores, dos paneles</h3>
+      <p>Tú pediste «rendimiento», pero antes quitaste la racha porque no querías que la app le metiera presión. Un panel de rendimiento delante de una niña de 9 años es exactamente esa presión, con otro nombre.</p>
+      <p>Así que <b>Sofía ve qué hacer ahora</b> y <b>vosotros veis cómo va</b>. Mismo sitio, mismos datos, distinto encuadre. Encaja con los roles que ya están en el modelo.</p>
+    </div>
+
+    <div class="nota">
+      <h3>Todo esto sale de datos que YA existen</h3>
+      <p>Estado de cada palabra, veces vista, última vez, y aciertos y fallos por tabla. Cero escrituras nuevas, cero campos nuevos: se puede construir tal cual está la base hoy.</p>
+    </div>
+
+    <div class="nota nota--aviso">
+      <h3>Lo que NO sale, y hay que decidir</h3>
+      <p><b>«Palabras nuevas esta semana»</b> necesita un <code>createdAt</code> en las tarjetas. Hoy solo hay <code>updatedAt</code>, y el importador lo reescribe entero en cada pasada: reimportar el euskera marcaría las 3.140 como nuevas.</p>
+      <p><b>Hay que añadirlo antes de la importación grande</b>, o esa información no existirá nunca.</p>
+      <p><b>La actividad por días</b> necesita un registro diario (<code>users/{uid}/dias/{fecha}</code>). Una escritura por sesión, y a partir de mañana hay historia. Hoy no se puede dibujar sin inventarla.</p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   DATOS SIMULADOS
+   Tres momentos de la vida de la app, porque un panel hay que
+   diseñarlo también para el día que no hay nada que enseñar.
+   ============================================================ */
+
+const TEMAS = [
+  { id: "animals", nombre: "Animales", total: 14 },
+  { id: "food",    nombre: "Comida",   total: 18 },
+  { id: "school",  nombre: "Colegio",  total: 22 },
+  { id: "house",   nombre: "Casa",     total: 16 },
+  { id: "family",  nombre: "Familia",  total: 11 },
+  { id: "colors",  nombre: "Colores",  total: 9 },
+  { id: "weather", nombre: "Tiempo",   total: 7 },
+  { id: "actions", nombre: "Acciones", total: 84 }
+];
+
+/* [sabidas, aprendiendo, repasar] por tema */
+const MOMENTOS = {
+  primer: {
+    reparto: { animals: [0,0,0], food: [0,0,0], school: [0,0,0], house: [0,0,0],
+               family: [0,0,0], colors: [0,0,0], weather: [0,0,0], actions: [0,0,0] },
+    tablas: {},
+    dias: 0
+  },
+  semana: {
+    reparto: { animals: [8,2,1], food: [4,3,2], school: [2,1,0], house: [0,0,0],
+               family: [5,1,0], colors: [6,1,1], weather: [0,0,0], actions: [3,2,1] },
+    tablas: { 1:"verde", 2:"verde", 3:"verde", 4:"media", 5:"verde", 6:"media",
+              7:"floja", 8:"media", 9:"floja", 10:"verde" },
+    dias: 6
+  },
+  meses: {
+    reparto: { animals: [12,1,1], food: [14,2,2], school: [16,3,3], house: [11,2,3],
+               family: [10,1,0], colors: [9,0,0], weather: [5,1,1], actions: [41,9,7] },
+    tablas: { 1:"verde", 2:"verde", 3:"verde", 4:"verde", 5:"verde", 6:"verde",
+              7:"media", 8:"verde", 9:"media", 10:"verde" },
+    dias: 84
+  }
+};
+
+let rol = "alumno";
+let momento = "semana";
+
+/* ---------- utilidades ---------- */
+
+const sumaDe = (m) => {
+  let sabidas = 0, aprendiendo = 0, repasar = 0, total = 0;
+  TEMAS.forEach((tema) => {
+    const [s, a, r] = MOMENTOS[m].reparto[tema.id];
+    sabidas += s; aprendiendo += a; repasar += r; total += tema.total;
+  });
+  return { sabidas, aprendiendo, repasar, total, sinTocar: total - sabidas - aprendiendo - repasar };
+};
+
+/** Un tema dibujado como puntos, o como barra si tiene demasiados. */
+function dibujoDeTema(tema, reparto) {
+  const [sabidas, aprendiendo, repasar] = reparto;
+  const sinTocar = tema.total - sabidas - aprendiendo - repasar;
+
+  if (tema.total > 40) {
+    const pct = (n) => (n / tema.total * 100).toFixed(1) + "%";
+    return '<div class="barra" role="img" aria-label="' +
+      sabidas + ' de ' + tema.total + ' sabidas">' +
+      '<span class="known" style="width:' + pct(sabidas) + '"></span>' +
+      '<span class="learning" style="width:' + pct(aprendiendo) + '"></span>' +
+      '<span class="review" style="width:' + pct(repasar) + '"></span>' +
+      '</div>';
+  }
+
+  const punto = (clase) => '<span class="punto' + (clase ? ' punto--' + clase : '') + '"></span>';
+  return '<div class="puntos" role="img" aria-label="' + sabidas + ' de ' + tema.total + ' sabidas">' +
+    punto("known").repeat(sabidas) +
+    punto("learning").repeat(aprendiendo) +
+    punto("review").repeat(repasar) +
+    punto("").repeat(sinTocar) +
+    '</div>';
+}
+
+function mapa() {
+  const reparto = MOMENTOS[momento].reparto;
+  return '<ul class="mapa">' + TEMAS.map((tema) => {
+    const r = reparto[tema.id];
+    const sabidas = r[0];
+    return '<li class="tema">' +
+      '<div class="tema__cabecera">' +
+        '<span class="tema__nombre">' + tema.nombre + '</span>' +
+        '<span class="tema__cuenta">' + sabidas + '/' + tema.total + '</span>' +
+      '</div>' + dibujoDeTema(tema, r) + '</li>';
+  }).join("") + '</ul>' +
+  '<ul class="leyenda">' +
+    '<li><span class="punto punto--known"></span> Se la sabe</li>' +
+    '<li><span class="punto punto--learning"></span> Empezada</li>' +
+    '<li><span class="punto punto--review"></span> Para repasar</li>' +
+    '<li><span class="punto"></span> Sin tocar</li>' +
+  '</ul>';
+}
+
+function rejillaTablas() {
+  const niveles = MOMENTOS[momento].tablas;
+  let html = '<div class="tablas">';
+  for (let n = 1; n <= 10; n++) {
+    html += '<span class="tabla" data-nivel="' + (niveles[n] || "") + '">' + n + '</span>';
+  }
+  return html + '</div>';
+}
+
+/* ---------- la vista de Sofía ---------- */
+
+function vistaAlumno() {
+  const s = sumaDe(momento);
+  const niveles = MOMENTOS[momento].tablas;
+  const floja = Object.keys(niveles).find((n) => niveles[n] === "floja");
+
+  let toca;
+  if (s.total === s.sinTocar) {
+    /* Primer día: no hay progreso que enseñar, y fingirlo sería mentir. */
+    toca = '<div class="toca" style="--color-acento: var(--coral)">' +
+      '<span class="toca__icono" aria-hidden="true">🌱</span>' +
+      '<div><p class="toca__que">Empezamos por aquí</p>' +
+      '<p class="toca__detalle">Diez palabras de animales para el primer día.</p></div>' +
+      '<button class="toca__boton" type="button">Empezar</button></div>';
+  } else if (s.repasar > 0) {
+    toca = '<div class="toca" style="--color-acento: var(--coral)">' +
+      '<span class="toca__icono" aria-hidden="true">🔁</span>' +
+      '<div><p class="toca__que">Tienes ' + s.repasar + ' palabras para repasar</p>' +
+      '<p class="toca__detalle">Son las que marcaste con «Repasar». En cinco minutos las tienes.</p></div>' +
+      '<button class="toca__boton" type="button">Repasarlas</button></div>';
+  } else {
+    toca = '<div class="toca" style="--color-acento: var(--menta)">' +
+      '<span class="toca__icono" aria-hidden="true">✨</span>' +
+      '<div><p class="toca__que">Lo tienes todo al día</p>' +
+      '<p class="toca__detalle">Si te apetece, aprendemos cinco palabras nuevas.</p></div>' +
+      '<button class="toca__boton" type="button">Cinco nuevas</button></div>';
+  }
+
+  const mates = floja
+    ? '<p class="seccion__titulo" style="margin-top:20px">Matemagia</p>' +
+      '<div class="toca" style="--color-acento: var(--menta); margin-bottom: 0">' +
+        '<span class="toca__icono" aria-hidden="true">✖️</span>' +
+        '<div><p class="toca__que">La del ' + floja + ' se te resiste</p>' +
+        '<p class="toca__detalle">Diez preguntas y la dejamos verde.</p></div>' +
+        '<button class="toca__boton" type="button">Vamos</button></div>'
+    : '<p class="seccion__titulo" style="margin-top:20px">Tus tablas</p>' + rejillaTablas();
+
+  const cuerpo = (s.total === s.sinTocar)
+    ? '<div class="vacio"><span class="vacio__emoji" aria-hidden="true">🗺️</span>' +
+      'Aquí va a aparecer tu mapa de palabras.<br>Cada palabra que aprendas pintará un punto de color.</div>'
+    : '<p class="seccion__titulo">Tu mapa de palabras</p>' + mapa();
+
+  return '<p class="saludo">¡Hola, Sofía! 👋</p>' +
+    '<p class="saludo-sub">¿Qué quieres hacer hoy?</p>' +
+    toca + cuerpo + mates;
+}
+
+/* ---------- la vista de los adultos ---------- */
+
+function vistaTutor() {
+  const s = sumaDe(momento);
+  const dias = MOMENTOS[momento].dias;
+
+  const cifras = '<ul class="cifras">' +
+    '<li class="cifra"><b>' + s.sabidas + '</b><span>palabras que se sabe</span></li>' +
+    '<li class="cifra"><b>' + s.repasar + '</b><span>marcadas para repasar</span></li>' +
+    '<li class="cifra"><b>' + s.total + '</b><span>disponibles en la app</span></li>' +
+    '<li class="cifra"><b>' + dias + '</b><span>días usándola</span></li>' +
+  '</ul>';
+
+  if (s.total === s.sinTocar) {
+    return '<p class="saludo">Cómo va Sofía</p>' +
+      '<p class="saludo-sub">Todavía no ha empezado.</p>' + cifras +
+      '<div class="pendiente">Cuando haga la primera vuelta, aquí aparecerá el reparto por tema, ' +
+      'qué palabras se le resisten y cómo van las tablas.</div>';
+  }
+
+  /* Los temas más flojos primero: es lo accionable, no el ranking. */
+  const filas = TEMAS.map((tema) => {
+    const [sab, apr, rep] = MOMENTOS[momento].reparto[tema.id];
+    return { tema, sab, apr, rep, pct: sab / tema.total };
+  }).sort((a, b) => a.pct - b.pct);
+
+  const tabla = '<div class="marco-tabla"><table class="tabla-datos">' +
+    '<thead><tr><th>Tema</th><th>Se sabe</th><th>Repasar</th><th>Sin tocar</th></tr></thead><tbody>' +
+    filas.map((f) =>
+      '<tr><td>' + f.tema.nombre + '</td>' +
+      '<td>' + f.sab + ' de ' + f.tema.total + '</td>' +
+      '<td>' + f.rep + '</td>' +
+      '<td>' + (f.tema.total - f.sab - f.apr - f.rep) + '</td></tr>'
+    ).join("") + '</tbody></table></div>';
+
+  return '<p class="saludo">Cómo va Sofía</p>' +
+    '<p class="saludo-sub">Los temas más flojos, arriba.</p>' +
+    cifras + tabla +
+    '<p class="seccion__titulo">Tablas de multiplicar</p>' + rejillaTablas() +
+    '<div class="pendiente" style="margin-top:18px">' +
+    '<b>Aquí faltarían dos cosas</b> que hoy no se pueden calcular: las palabras dadas de alta ' +
+    'esta semana (necesita <code>createdAt</code> en las tarjetas) y la actividad por días ' +
+    '(necesita un registro diario). Ninguna se puede dibujar sin inventarla.</div>';
+}
+
+/* ---------- pintar ---------- */
+
+function pintar() {
+  document.getElementById("panel").innerHTML = (rol === "alumno") ? vistaAlumno() : vistaTutor();
+}
+
+document.querySelectorAll("[data-rol]").forEach((boton) => {
+  boton.addEventListener("click", () => {
+    rol = boton.dataset.rol;
+    document.querySelectorAll("[data-rol]").forEach((b) => b.setAttribute("aria-pressed", String(b === boton)));
+    pintar();
+  });
+});
+
+document.querySelectorAll("[data-momento]").forEach((boton) => {
+  boton.addEventListener("click", () => {
+    momento = boton.dataset.momento;
+    document.querySelectorAll("[data-momento]").forEach((b) => b.setAttribute("aria-pressed", String(b === boton)));
+    pintar();
+  });
+});
+
+pintar();
+</script>
