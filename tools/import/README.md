@@ -202,6 +202,50 @@ la voz sintética en cuanto existe.
 
 ---
 
+## El maestro: volcar y restaurar
+
+El contenido de Firestore es regenerable; lo que se crea en el proyecto —el
+euskera revisado, los temas, la curación de qué entra en las fichas— no está en
+ningún `.apkg` y hay que archivarlo en algún sitio que se pueda **leer**.
+
+```bash
+npm run exportar     # Firestore  →  contenido/maestro/*.jsonl
+npm run restaurar    # al revés, y en seco salvo que se confirme
+```
+
+Va a `contenido/maestro/`, en la raíz y **fuera de `vocabulario/`** a propósito:
+esa carpeta la publica Firebase Hosting, y Hosting no tiene autenticación, así
+que ahí dentro el corpus entero quedaría descargable por cualquiera.
+
+Dos decisiones hacen que el diff se pueda leer, y sin ellas esto no sirve:
+
+- **Orden estable**, por id y con las claves ordenadas. Firestore devuelve los
+  documentos como le parece; sin ordenar, cada volcado cambiaría las 3.140
+  líneas y el diff no diría nada.
+- **`updatedAt` fuera.** Se reescribe en cada pasada del importador, así que si
+  entrara, importar marcaría las 3.140 como modificadas. `createdAt` sí se
+  queda: solo se escribe en el alta.
+
+`npm run comprobar-exportar` verifica las dos cosas con un almacén de mentira,
+sin credenciales y sin tocar Firebase.
+
+**El importador vuelca solo antes de escribir**, porque el volcado que protege
+no es el del domingo sino el de treinta segundos antes de importar. Se puede
+saltar con `--sin-volcado`, pero no deberías.
+
+### Restaurar, y probarlo
+
+`restaurar.mjs` empieza siempre en seco: enseña cuántas tarjetas hay ahora,
+cuántas trae el maestro y cómo quedaría la primera. Solo escribe con
+`--confirmar`, y usa `set()` sin merge, porque restaurar es dejar el documento
+como estaba. **No toca `users/…`**: el progreso de Sofía no está en el maestro y
+no se restaura desde aquí.
+
+Conviene probarlo una vez a propósito, en un proyecto de pruebas, antes de
+necesitarlo. Una copia que nunca se ha restaurado no es una copia.
+
+---
+
 ## Volver a importar
 
 Todas las escrituras son `merge`, y el `id` es estable (`<tema>_<palabra>`), así

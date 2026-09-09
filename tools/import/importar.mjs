@@ -64,6 +64,7 @@ Uso: node importar.mjs --origen <json|csv|anki> --fichero <ruta> [opciones]
 
   --media <carpeta>   carpeta local de medios (por defecto, la del fichero)
   --dry-run           no sube ni escribe nada: solo enseña el resultado
+  --sin-volcado       no volcar el maestro antes de escribir (no recomendado)
   --limite <n>        importar como mucho n tarjetas
   --forzar            volver a subir medios que ya estén en Storage
   --sin-medios        no subir nada a Storage (los medios los sirve Hosting
@@ -298,6 +299,16 @@ async function principal() {
   }
 
   const { subirMedia, escribirTarjetas, escribirTemas } = await import("./lib/firebase.mjs");
+
+  /* El volcado que de verdad protege no es el del domingo: es el de treinta
+     segundos antes de importar, porque importar es la operación que
+     sobrescribe. Así no depende de que nadie se acuerde. */
+  if (!opciones["sin-volcado"]) {
+    const { exportarMaestro } = await import("./exportar.mjs");
+    const antes = await exportarMaestro({ silencioso: true });
+    console.log(`\nVolcado previo: ${antes.tarjetas} tarjetas y ${antes.temas} temas en contenido/maestro.`);
+    console.log("Si esto sale mal, ahí está lo que había. Commítealo antes de seguir si aún no lo está.");
+  }
 
   let subidos = 0;
   for (const medio of (sinMedios ? [] : medios)) {

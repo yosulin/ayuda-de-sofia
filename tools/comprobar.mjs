@@ -50,6 +50,8 @@ console.log("\nComprobando " + raiz + "\n");
 paso("El service worker precachea lo que la app carga", () => ejecutar("tools/comprobar-precacheo.mjs"));
 paso("Las tres lenguas están completas", () => ejecutar("tools/comprobar-traducciones.mjs"));
 
+paso("El volcado del maestro produce diffs legibles", () => ejecutar("tools/import/comprobar-exportar.mjs"));
+
 paso("Los ficheros de configuración son JSON válido", () => {
   CONFIGURACIONES.forEach((fichero) => {
     try {

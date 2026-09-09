@@ -12,7 +12,10 @@
     "denegar": "node permitir.mjs denegar",
     "semilla": "node importar.mjs --origen json --fichero datos/tarjetas-demo.json --media ../../vocabulario/media --sin-medios",
     "semilla-prueba": "node importar.mjs --origen json --fichero datos/tarjetas-demo.json --media ../../vocabulario/media --sin-medios --dry-run",
-    "semilla-storage": "node importar.mjs --origen json --fichero datos/tarjetas-demo.json --media ../../vocabulario/media"
+    "semilla-storage": "node importar.mjs --origen json --fichero datos/tarjetas-demo.json --media ../../vocabulario/media",
+    "exportar": "node exportar.mjs",
+    "restaurar": "node restaurar.mjs",
+    "comprobar-exportar": "node comprobar-exportar.mjs"
   },
   "dependencies": {
     "firebase-admin": "^12.7.0"
