@@ -1,0 +1,29 @@
+# ============================================================
+#  Comprobaciones en cada cambio
+# ============================================================
+#  Llama al MISMO comando que se corre en local (tools/comprobar.mjs)
+#  a propósito: si la CI comprobara otra cosa, tarde o temprano una de
+#  las dos se quedaría atrás y dejaríamos de fiarnos de las dos.
+#
+#  No instala nada: la app son módulos ES nativos, sin compilación.
+# ============================================================
+
+name: Comprobaciones
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  comprobar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Todo lo que hay que comprobar antes de publicar
+        run: node tools/comprobar.mjs

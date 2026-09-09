@@ -10,16 +10,20 @@
     ],
     "headers": [
       {
-        "source": "/service-worker.js",
+        "source": "**",
         "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+      },
+      {
+        "source": "/",
+        "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+      },
+      {
+        "source": "**/*.@(svg|png|webp|mp3|woff2)",
+        "headers": [{ "key": "Cache-Control", "value": "public, max-age=3600" }]
       },
       {
         "source": "/version.json",
         "headers": [{ "key": "Cache-Control", "value": "no-store" }]
-      },
-      {
-        "source": "**/*.@(js|css|svg|png|webp|mp3)",
-        "headers": [{ "key": "Cache-Control", "value": "public, max-age=3600" }]
       }
     ],
     "cleanUrls": true

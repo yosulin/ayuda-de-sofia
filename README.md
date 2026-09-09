@@ -72,6 +72,30 @@ El despliegue sella la versión solo (`tools/sellar-version.mjs`): se lee de
 `VERSION`, y de ahí salen el número que se ve en Ajustes y el nombre de las
 cachés del service worker. **No hay que tocar la versión en ningún otro sitio.**
 
+Antes de desplegar, en verde:
+
+```bash
+node tools/comprobar.mjs
+```
+
+Es lo mismo que corre la CI en cada cambio, a propósito: si comprobaran cosas
+distintas, una de las dos se quedaría atrás y dejaríamos de fiarnos de las dos.
+
+### Por qué las cabeceras son `no-cache`
+
+Sin compilación no hay huellas en los nombres de fichero, así que `estilos.css`
+se llama igual antes y después de un cambio. Con `max-age` el navegador se queda
+con el viejo sin preguntar, y aquí eso se cerraba en círculo: `version.js` salía
+de la caché, la app registraba `service-worker.js?v=` **con la versión vieja**,
+el navegador no veía una URL nueva y no estrenaba el service worker, así que las
+cachés no rotaban y `version.js` seguía siendo el viejo. Esa es la razón de ver
+la versión anterior después de desplegar.
+
+`no-cache` no significa «no guardes»: significa «pregunta antes de usarlo». El
+fichero se sigue guardando y, si no ha cambiado, el servidor responde 304 y no
+se descarga nada. Las imágenes y los audios sí llevan `max-age`, porque son
+grandes y rara vez cambian sin cambiar de nombre.
+
 ### Contenido
 
 ```bash
