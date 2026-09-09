@@ -52,6 +52,8 @@ paso("Las tres lenguas están completas", () => ejecutar("tools/comprobar-traduc
 
 paso("El volcado del maestro produce diffs legibles", () => ejecutar("tools/import/comprobar-exportar.mjs"));
 
+paso("Renombrar identificadores conserva el progreso", () => ejecutar("tools/import/comprobar-migrar.mjs"));
+
 paso("Los ficheros de configuración son JSON válido", () => {
   CONFIGURACIONES.forEach((fichero) => {
     try {

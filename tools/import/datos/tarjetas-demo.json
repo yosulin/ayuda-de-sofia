@@ -51,10 +51,10 @@
   ],
   "tarjetas": [
     {
-      "id": "animals_dog",
+      "id": "dog_n",
       "word": "dog",
       "es": "perro",
-      "eu": "txakurra",
+      "eu": "txakur",
       "theme": "animals",
       "layer": 1,
       "type": "noun",
@@ -78,10 +78,10 @@
       "active": true
     },
     {
-      "id": "animals_cat",
+      "id": "cat_n",
       "word": "cat",
       "es": "gato",
-      "eu": "katua",
+      "eu": "katu",
       "theme": "animals",
       "layer": 1,
       "type": "noun",
@@ -105,10 +105,10 @@
       "active": true
     },
     {
-      "id": "food_apple",
+      "id": "apple_n",
       "word": "apple",
       "es": "manzana",
-      "eu": "sagarra",
+      "eu": "sagar",
       "theme": "food",
       "layer": 1,
       "type": "noun",
@@ -132,10 +132,10 @@
       "active": true
     },
     {
-      "id": "school_book",
+      "id": "book_n",
       "word": "book",
       "es": "libro",
-      "eu": "liburua",
+      "eu": "liburu",
       "theme": "school",
       "layer": 1,
       "type": "noun",
@@ -159,7 +159,7 @@
       "active": true
     },
     {
-      "id": "family_sister",
+      "id": "sister_n",
       "word": "sister",
       "es": "hermana",
       "eu": "ahizpa",
@@ -186,10 +186,10 @@
       "active": true
     },
     {
-      "id": "school_teacher",
+      "id": "teacher_n",
       "word": "teacher",
       "es": "profesor, profesora",
-      "eu": "irakaslea",
+      "eu": "irakasle",
       "theme": "school",
       "layer": 1,
       "type": "noun",
@@ -214,7 +214,7 @@
       "active": true
     },
     {
-      "id": "feelings_happy",
+      "id": "happy_adj",
       "word": "happy",
       "es": "contento, feliz",
       "eu": "pozik",
@@ -241,7 +241,7 @@
       "active": true
     },
     {
-      "id": "actions_play",
+      "id": "play_v",
       "word": "play",
       "es": "jugar",
       "eu": "jolastu",
@@ -268,10 +268,10 @@
       "active": true
     },
     {
-      "id": "colors_red",
+      "id": "red_adj",
       "word": "red",
       "es": "rojo",
-      "eu": "gorria",
+      "eu": "gorri",
       "theme": "colors",
       "layer": 1,
       "type": "adjective",
@@ -294,10 +294,10 @@
       "active": true
     },
     {
-      "id": "weather_rain",
+      "id": "rain_n",
       "word": "rain",
       "es": "lluvia",
-      "eu": "euria",
+      "eu": "euri",
       "theme": "weather",
       "layer": 1,
       "type": "noun",

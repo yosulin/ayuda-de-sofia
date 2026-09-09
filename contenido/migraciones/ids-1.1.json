@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "1.1",
+  "motivo": "ConceptId pasa de <tema>_<palabra> a <lema>_<pos> (contrato 1.1)",
+  "fecha": "2026-09-09",
+  "equivalencias": {
+    "animals_dog": "dog_n",
+    "animals_cat": "cat_n",
+    "food_apple": "apple_n",
+    "school_book": "book_n",
+    "family_sister": "sister_n",
+    "school_teacher": "teacher_n",
+    "feelings_happy": "happy_adj",
+    "actions_play": "play_v",
+    "colors_red": "red_adj",
+    "weather_rain": "rain_n"
+  }
+}

@@ -15,7 +15,9 @@
     "semilla-storage": "node importar.mjs --origen json --fichero datos/tarjetas-demo.json --media ../../vocabulario/media",
     "exportar": "node exportar.mjs",
     "restaurar": "node restaurar.mjs",
-    "comprobar-exportar": "node comprobar-exportar.mjs"
+    "comprobar-exportar": "node comprobar-exportar.mjs",
+    "migrar-ids": "node migrar-ids.mjs",
+    "comprobar-migrar": "node comprobar-migrar.mjs"
   },
   "dependencies": {
     "firebase-admin": "^12.7.0"

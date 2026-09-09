@@ -246,6 +246,32 @@ necesitarlo. Una copia que nunca se ha restaurado no es una copia.
 
 ---
 
+## Renombrar identificadores (contrato 1.1)
+
+El 1.1 cambia el `ConceptId` de `<tema>_<palabra>` a `<lema>_<pos>`:
+`animals_dog` pasa a ser `dog_n`. Las tarjetas dan igual —el contenido se
+regenera—, pero **el progreso vive en `users/{uid}/progress/{cardId}`**, con ese
+mismo id. Renombrar sin más deja huérfano lo único irremplazable del sistema.
+
+```bash
+npm run migrar-ids                    # en seco: enseña qué haría
+npm run migrar-ids -- --confirmar     # lo hace
+npm run migrar-ids -- --confirmar --sin-borrar   # copia y no borra lo viejo
+```
+
+Copia las tarjetas, copia el progreso de **todos** los usuarios y solo entonces
+borra lo viejo. Si algo se corta por el camino, lo anterior sigue ahí y se puede
+repetir: la migración es idempotente.
+
+La tabla de equivalencia está versionada en
+`contenido/migraciones/ids-1.1.json`, no se calcula al vuelo, así que queda
+registrado qué se renombró y se puede deshacer.
+
+`npm run comprobar-migrar` lo prueba con un Firestore de mentira. Comprueba,
+entre otras cosas, que **nada se borra sin haberse copiado antes**.
+
+---
+
 ## Volver a importar
 
 Todas las escrituras son `merge`, y el `id` es estable (`<tema>_<palabra>`), así
