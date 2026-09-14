@@ -59,15 +59,21 @@ sin estar en ella no se ve nada, aunque entres con Google.
 
 ## Trabajar en el proyecto
 
+**No se publica a mano.** Lo que entra en `main` se publica solo: GitHub Actions
+pasa las comprobaciones, le pregunta a Firebase su configuración y despliega
+hosting, reglas e índices. Publicar es hacer merge a `main`.
+
+```bash
+node tools/comprobar.mjs     # la misma puerta que corre la CI, en local
+```
+
+Si alguna vez hace falta trabajar con la app en local:
+
 ```bash
 # la primera vez, en cada máquina: elegir el proyecto y generar la
 # configuración local, que está fuera del repositorio a propósito
 firebase use sofiahelptool
 node tools/config-desde-firebase.mjs
-
-# publicar
-firebase deploy --only hosting
-firebase deploy --only firestore:indexes   # cuando cambien las consultas
 ```
 
 El orden importa: el generador le pregunta la configuración a la CLI, así que

@@ -22,3 +22,4 @@ tools/import/package-lock.json
 # git pull chocara con el despliegue anterior.
 vocabulario/version.json
 vocabulario/js/version.js
+credencial.json
