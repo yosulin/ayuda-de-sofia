@@ -3,7 +3,7 @@
 Traspaso de una sesión de trabajo a la siguiente. Qué funciona, qué se decidió y
 por qué, qué falta y qué está sin decidir.
 
-> Última actualización: 8 de septiembre de 2026, versión **0.6.2**.
+> Última actualización: 14 de septiembre de 2026, versión **0.7.0**.
 > Si estás leyendo esto y el repositorio ha avanzado mucho, contrástalo con
 > `git log` antes de fiarte.
 
@@ -33,13 +33,28 @@ de la colección `allowed` de Firestore.
 | Módulo | Estado |
 |---|---|
 | **Tarjetas** | Funciona con **10 tarjetas de demostración**. Escena, audio, escribir la palabra, «la sabía» / «repasar». |
-| **Diccionario** | Funciona. Busca en las tres lenguas, por acepción suelta y por principio de palabra. Da traducción y definición en los tres idiomas. |
-| **Matemagia** | Tablas del 1 al 10, sumas y restas ABN. Progreso por tabla. |
+| **Diccionario** | Funciona, **apagado**. Es el paso 2. Busca en las tres lenguas, por acepción suelta y por principio de palabra. Da traducción y definición en los tres idiomas. |
+| **Matemagia** | Funciona, **apagado**. Se retoma más adelante. |
 | **Ajustes** | Idioma, versión, instalar, cerrar sesión, descargar el contenido en CSV. |
 
 Interfaz en **castellano, euskera e inglés**. Armazón adaptativo con cuatro
 repartos de navegación (barra inferior, lateral de iconos, lateral con texto,
 cajón).
+
+---
+
+## El alcance de ahora: aprender vocabulario
+
+Decidido el 14 de septiembre. **Una sola cosa a la vez.** Matemagia y Diccionario
+se apagan —no se borran— y el trabajo es que Sofía aprenda palabras con las
+fichas. Se apagan con `disponible: false` en `vocabulario/js/modulos.js`: el
+módulo se sigue viendo en el índice, apagado y sin entrar, y desaparece de la
+navegación. Encenderlo es cambiar esa palabra.
+
+Y una regla que va con el alcance: **la app tiene todas las fichas dentro, pero
+se habilitan por tandas**, decididas juntos. Eso es exactamente lo que ya
+significan las dos banderas: `active` para que exista, `deck` para que le salga
+a Sofía.
 
 ---
 

@@ -60,6 +60,7 @@ export const TEXTOS = {
     "hub.saludoSinNombre": "Hola",
     "hub.pregunta": "¿Qué quieres hacer hoy?",
 
+    "modulo.pronto": "Pronto",
     "modulo.tarjetas.nombre": "Tarjetas",
     "modulo.tarjetas.que": "Escucha, mira el dibujo y escribe la palabra en inglés",
     "modulo.tarjetas.estado": "{n} palabras",
@@ -192,6 +193,7 @@ export const TEXTOS = {
     "hub.saludoSinNombre": "Kaixo",
     "hub.pregunta": "Zer egin nahi duzu gaur?",
 
+    "modulo.pronto": "Laster",
     "modulo.tarjetas.nombre": "Txartelak",
     "modulo.tarjetas.que": "Entzun, begiratu marrazkia eta idatzi hitza ingelesez",
     "modulo.tarjetas.estado": "{n} hitz",
@@ -324,6 +326,7 @@ export const TEXTOS = {
     "hub.saludoSinNombre": "Hi",
     "hub.pregunta": "What would you like to do today?",
 
+    "modulo.pronto": "Soon",
     "modulo.tarjetas.nombre": "Cards",
     "modulo.tarjetas.que": "Listen, look at the picture and write the English word",
     "modulo.tarjetas.estado": "{n} words",
