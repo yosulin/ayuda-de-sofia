@@ -14,6 +14,8 @@
  *  proyecto, no de un copiar y pegar.
  *
  *  Requisitos: firebase-tools instalado y "firebase login" hecho.
+ *  En la CI no hay login ni proyecto activo: basta con
+ *  GOOGLE_APPLICATION_CREDENTIALS y FIREBASE_PROJECT.
  *
  *  Si el proyecto tuviera varias apps web:
  *      node tools/config-desde-firebase.mjs 1:268...:web:92d2...
@@ -35,6 +37,8 @@ function preguntarAFirebase() {
   const argumentos = ["apps:sdkconfig", "WEB"];
   if (appId) argumentos.push(appId);
   argumentos.push("--json");
+  /* En la CI no hay "firebase use": el proyecto llega por el entorno. */
+  if (process.env.FIREBASE_PROJECT) argumentos.push("--project", process.env.FIREBASE_PROJECT);
 
   try {
     return execFileSync("firebase", argumentos, {

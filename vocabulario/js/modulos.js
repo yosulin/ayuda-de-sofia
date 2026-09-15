@@ -21,6 +21,11 @@ import { t } from "./i18n.js";
  *              no obliga a rehacer la navegación
  *    estado    la etiqueta de la tarjeta; puede ser una función que
  *              recibe el contexto (por ejemplo, cuántas palabras hay)
+ *    disponible  si está en el alcance de ahora mismo. En false el
+ *              módulo se sigue viendo en el índice, apagado y sin
+ *              entrar, y desaparece de la navegación: no se borra
+ *              nada, así que volver a encenderlo es cambiar
+ *              esta palabra.
  *
  *  Lo que viene: las tarjetas acabarán siendo asignaturas, y dentro de
  *  cada una sus temas y sus herramientas. Cuando toque, un módulo podrá
@@ -28,7 +33,11 @@ import { t } from "./i18n.js";
  *  nivel más abajo.
  * ============================================================ */
 
-export const MODULOS = [
+/* El alcance de hoy es APRENDER VOCABULARIO CON LAS FICHAS. Matemagia
+   y Diccionario están hechos y funcionan, pero apagados a propósito:
+   uno se retoma más adelante, el otro es el paso 2. Se apagan aquí y
+   en un solo sitio, no comentando código ni borrando pantallas. */
+const CATALOGO = [
   {
     id: "tarjetas",
     icono: "🃏",
@@ -47,6 +56,7 @@ export const MODULOS = [
     pantalla: "diccionario",
     pantallas: ["diccionario"],
     roles: ["alumno", "tutor"],
+    disponible: false,
     estado: () => t("modulo.diccionario.estado")
   },
   {
@@ -56,6 +66,7 @@ export const MODULOS = [
     pantalla: "matemagia",
     pantallas: ["matemagia", "matesReto", "matesFinal"],
     roles: ["alumno", "tutor"],
+    disponible: false,
     estado: () => t("modulo.matemagia.estado")
   },
   {
@@ -68,6 +79,18 @@ export const MODULOS = [
     estado: () => t("modulo.libre.estado")
   }
 ];
+
+/* Un módulo apagado se comporta exactamente igual que uno que todavía
+   no existe: sin pantalla a la que ir. Así no hay que enseñarle a
+   nadie más —ni al índice, ni a la navegación, ni al enrutado— qué es
+   estar apagado; ya saben qué hacer con pantalla: null. */
+export const MODULOS = CATALOGO.map((modulo) => (modulo.disponible === false
+  ? Object.assign({}, modulo, {
+    pantalla: null,
+    pantallas: [],
+    estado: () => t("modulo.pronto")
+  })
+  : modulo));
 
 /**
  * Pinta el índice. Devuelve los botones que llevan a algún sitio, para

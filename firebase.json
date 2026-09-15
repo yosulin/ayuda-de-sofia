@@ -18,8 +18,16 @@
         "headers": [{ "key": "Cache-Control", "value": "no-store" }]
       },
       {
-        "source": "**/*.@(js|css|svg|png|webp|mp3)",
-        "headers": [{ "key": "Cache-Control", "value": "public, max-age=3600" }]
+        "source": "**/*.@(html|js|css)",
+        "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+      },
+      {
+        "source": "/",
+        "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+      },
+      {
+        "source": "**/*.@(svg|png|webp|mp3|woff2)",
+        "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800" }]
       }
     ],
     "cleanUrls": true

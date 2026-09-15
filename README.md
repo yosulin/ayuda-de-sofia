@@ -15,8 +15,13 @@ apetezca. Una PWA privada, en tres idiomas, que se publica en
 | | Qué hace |
 |---|---|
 | **Tarjetas** | Escuchas la palabra, ves la escena y la escribes en inglés. Sin repetición espaciada: se marca «la sabía» o «repasar» y ya. |
-| **Diccionario** | Una palabra en cualquiera de los tres idiomas y te da los otros dos, con definición y frase de ejemplo cuando existen. Busca sobre **todo** el vocabulario, no solo sobre lo que está en las tarjetas. |
-| **Matemagia** | Tablas del 1 al 10, sumas y restas por el **método ABN**: no se pide el resultado, se piden los saltos, que es donde está el razonamiento. |
+| **Diccionario** *(apagado)* | Una palabra en cualquiera de los tres idiomas y te da los otros dos, con definición y frase de ejemplo cuando existen. Busca sobre **todo** el vocabulario, no solo sobre lo que está en las tarjetas. |
+| **Matemagia** *(apagado)* | Tablas del 1 al 10, sumas y restas por el **método ABN**: no se pide el resultado, se piden los saltos, que es donde está el razonamiento. |
+
+El alcance de ahora mismo son **las tarjetas**: aprender vocabulario. Diccionario
+y Matemagia están hechos y funcionan, pero se ven apagados en el índice —se
+encienden desde `disponible` en `vocabulario/js/modulos.js`, una palabra cada
+uno—. El diccionario es el paso 2.
 
 La interfaz está en **castellano, euskera e inglés**, y se elige en Ajustes. El
 contenido que se aprende no se traduce: es el ejercicio.
@@ -54,15 +59,21 @@ sin estar en ella no se ve nada, aunque entres con Google.
 
 ## Trabajar en el proyecto
 
+**No se publica a mano.** Lo que entra en `main` se publica solo: GitHub Actions
+pasa las comprobaciones, le pregunta a Firebase su configuración y despliega
+hosting, reglas e índices. Publicar es hacer merge a `main`.
+
+```bash
+node tools/comprobar.mjs     # la misma puerta que corre la CI, en local
+```
+
+Si alguna vez hace falta trabajar con la app en local:
+
 ```bash
 # la primera vez, en cada máquina: elegir el proyecto y generar la
 # configuración local, que está fuera del repositorio a propósito
 firebase use sofiahelptool
 node tools/config-desde-firebase.mjs
-
-# publicar
-firebase deploy --only hosting
-firebase deploy --only firestore:indexes   # cuando cambien las consultas
 ```
 
 El orden importa: el generador le pregunta la configuración a la CLI, así que

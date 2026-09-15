@@ -1,0 +1,85 @@
+# ============================================================
+#  DESPLEGAR — main es lo que está publicado
+# ============================================================
+#  Todo lo que entra en main se publica solo. No hay "firebase deploy"
+#  a mano, no hay que acordarse de sellar la versión y no hay forma de
+#  publicar desde una máquina con cambios sin subir.
+#
+#  Antes de publicar pasa la misma puerta que las ramas: si
+#  comprobar.mjs falla, no se despliega. Por eso el despliegue es un
+#  paso posterior y no el primero.
+#
+#  LO QUE HACE FALTA, UNA SOLA VEZ:
+#    un secreto FIREBASE_SERVICE_ACCOUNT en el repositorio, con el JSON
+#    entero de una cuenta de servicio del proyecto. Esa credencial no
+#    se pega en ningún fichero ni se enseña a nadie; vive solo ahí.
+#
+#  La configuración web (apiKey y compañía) NO se guarda en el
+#  repositorio: se le pregunta a Firebase en cada despliegue con esa
+#  misma credencial, que es como se hace también en local.
+# ============================================================
+
+name: Desplegar
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: desplegar
+  cancel-in-progress: false
+
+jobs:
+  desplegar:
+    runs-on: ubuntu-latest
+    env:
+      FIREBASE_PROJECT: sofiahelptool
+      GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/credencial.json
+
+    steps:
+      - uses: actions/checkout@v4
+        # El sello del despliegue necesita el commit corto.
+        with: { fetch-depth: 0 }
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Comprobar antes de publicar
+        run: |
+          node tools/comprobar.mjs
+          cd tools/import && node comprobar.mjs
+
+      - name: Escribir la credencial
+        env:
+          CREDENCIAL: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$CREDENCIAL" ]; then
+            echo "Falta el secreto FIREBASE_SERVICE_ACCOUNT en el repositorio."
+            exit 1
+          fi
+          printf '%s' "$CREDENCIAL" > "$GOOGLE_APPLICATION_CREDENTIALS"
+
+      - name: Instalar la CLI de Firebase
+        run: npm install -g firebase-tools@13
+
+      - name: Pedirle a Firebase su configuración
+        run: node tools/config-desde-firebase.mjs
+
+      - name: Publicar
+        run: |
+          firebase deploy --only hosting,firestore:rules,firestore:indexes \
+            --project "$FIREBASE_PROJECT" \
+            --non-interactive \
+            --message "${GITHUB_SHA::7} · ${GITHUB_ACTOR}"
+
+      - name: Borrar la credencial
+        if: always()
+        run: rm -f "$GOOGLE_APPLICATION_CREDENTIALS"
+
+      - name: Qué se ha publicado
+        run: |
+          echo "### Publicado $(cat VERSION)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "https://sofiahelptool.web.app" >> $GITHUB_STEP_SUMMARY

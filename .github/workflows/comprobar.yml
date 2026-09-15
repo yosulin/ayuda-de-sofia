@@ -1,0 +1,34 @@
+# ============================================================
+#  COMPROBAR — la puerta
+# ============================================================
+#  Corre en cada rama y en cada pull request. No despliega nada y no
+#  necesita credenciales: solo dice si esto se puede publicar.
+#
+#  Es la misma comprobación que corre justo antes de desplegar, así
+#  que lo que pase aquí pasará allí.
+# ============================================================
+
+name: Comprobar
+
+on:
+  push:
+    branches-ignore: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  comprobar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Comprobar la PWA
+        run: node tools/comprobar.mjs
+
+      - name: Comprobar el importador
+        working-directory: tools/import
+        run: node comprobar.mjs

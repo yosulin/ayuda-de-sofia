@@ -3,7 +3,7 @@
 Traspaso de una sesión de trabajo a la siguiente. Qué funciona, qué se decidió y
 por qué, qué falta y qué está sin decidir.
 
-> Última actualización: 8 de septiembre de 2026, versión **0.6.2**.
+> Última actualización: 14 de septiembre de 2026, versión **0.7.0**.
 > Si estás leyendo esto y el repositorio ha avanzado mucho, contrástalo con
 > `git log` antes de fiarte.
 
@@ -33,13 +33,42 @@ de la colección `allowed` de Firestore.
 | Módulo | Estado |
 |---|---|
 | **Tarjetas** | Funciona con **10 tarjetas de demostración**. Escena, audio, escribir la palabra, «la sabía» / «repasar». |
-| **Diccionario** | Funciona. Busca en las tres lenguas, por acepción suelta y por principio de palabra. Da traducción y definición en los tres idiomas. |
-| **Matemagia** | Tablas del 1 al 10, sumas y restas ABN. Progreso por tabla. |
+| **Diccionario** | Funciona, **apagado**. Es el paso 2. Busca en las tres lenguas, por acepción suelta y por principio de palabra. Da traducción y definición en los tres idiomas. |
+| **Matemagia** | Funciona, **apagado**. Se retoma más adelante. |
 | **Ajustes** | Idioma, versión, instalar, cerrar sesión, descargar el contenido en CSV. |
 
 Interfaz en **castellano, euskera e inglés**. Armazón adaptativo con cuatro
 repartos de navegación (barra inferior, lateral de iconos, lateral con texto,
 cajón).
+
+**Publicar es hacer merge a `main`.** Dos flujos en `.github/workflows/`:
+`comprobar.yml` en cada rama y cada PR, y `desplegar.yml` en `main`, que pasa
+la misma puerta y publica hosting, reglas de Firestore e índices. El secreto
+`FIREBASE_SERVICE_ACCOUNT` está creado en GitHub y la configuración web se le
+pregunta a Firebase en el momento, así que no hay claves en el repositorio.
+Ya no se despliega a mano desde ninguna máquina.
+
+La puerta es `tools/comprobar.mjs`, y corre igual en local. Comprueba lo que ya
+ha fallado alguna vez de verdad: sintaxis de cada módulo, que la lista de
+precacheo del service worker no se desincronice de lo que la app carga, los
+enlaces de `index.html`, que los tres idiomas tengan las mismas claves y el
+formato de `VERSION`. Las cinco se rompieron a propósito para verlas fallar, y
+en la CI de verdad se subió un commit roto para comprobar que bloquea.
+
+---
+
+## El alcance de ahora: aprender vocabulario
+
+Decidido el 14 de septiembre. **Una sola cosa a la vez.** Matemagia y Diccionario
+se apagan —no se borran— y el trabajo es que Sofía aprenda palabras con las
+fichas. Se apagan con `disponible: false` en `vocabulario/js/modulos.js`: el
+módulo se sigue viendo en el índice, apagado y sin entrar, y desaparece de la
+navegación. Encenderlo es cambiar esa palabra.
+
+Y una regla que va con el alcance: **la app tiene todas las fichas dentro, pero
+se habilitan por tandas**, decididas juntos. Eso es exactamente lo que ya
+significan las dos banderas: `active` para que exista, `deck` para que le salga
+a Sofía.
 
 ---
 
@@ -172,6 +201,45 @@ La 2 separa `uiLocale`, `learningLanguage` y `supportLanguages`. Francés puede 
 **Temas y progresión.** El corpus 5K no debe convertirse automáticamente en 5.000 flashcards. El diccionario puede acceder al conjunto completo; las actividades de aprendizaje son una selección curada.
 
 **Imágenes.** Se generarán progresivamente. El pipeline contempla `Imageability` y `ImagePrompt`; algunos conceptos abstractos pueden requerir escena/metáfora o no tener imagen.
+
+---
+
+## Cabos sueltos de la máquina de casa
+
+**La copia local del repositorio está perdida.** El 14 de septiembre no
+apareció por ningún sitio. Lo que sí existe es una carpeta de trabajo *que no
+es un repositorio*:
+
+```
+C:\Users\jsuarez\OneDrive - Artadi Alimentación S.L\Escritorio\07 - Dev Personal\Sofiahelptool
+```
+
+Ahí viven `The_Oxford_3000_with_Audio_EN-ES.apkg` y varios CSV de prompts de
+imagen generados con Gemini (`Sofia_Gemini_Image_Prompts_AUTO_4815_*`,
+`Sofia_Language_5k_Image_Source`). **Merece la pena preguntarle por esos CSV
+antes de decidir nada sobre los dibujos**: puede que ya haya avanzado por ahí.
+
+Para publicar ya no hace falta clonar nada. Solo hará falta el día de la
+importación grande, porque el `.apkg` está en ese disco y eso sí corre en su
+máquina:
+
+```bash
+git clone git@github.com:yosulin/ayuda-de-sofia.git
+```
+
+**Dos trampas conocidas de esa máquina**, por si vuelven a aparecer:
+
+- `better-sqlite3` no instala (npm 11 bloquea los scripts de instalación y no
+  hay binario precompilado para Node 24). Por eso el importador usa
+  `node:sqlite`, que viene dentro de Node.
+- Los `.apkg` modernos traen un **señuelo**: un `collection.anki2` casi vacío
+  junto al `collection.anki21b` de verdad, comprimido con zstd. Leer el
+  equivocado da «1 nota y 6.258 MP3 huérfanos». `tools/import/lib/mazo.mjs` ya
+  lo resuelve, y es el único sitio que sabe abrir un mazo: si necesitas leer
+  uno, úsalo, no escribas otra copia de esa lógica.
+
+**`trafico-okin-zumaia` se va a borrar.** Era el repositorio compartido donde
+vivía esto antes por error. Nada de aquí depende de él.
 
 ---
 
