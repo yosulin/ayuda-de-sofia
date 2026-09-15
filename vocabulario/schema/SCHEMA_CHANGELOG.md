@@ -2,6 +2,18 @@
 
 Historial del contrato de la fuente lingüística.
 
+## 1.1 — 2026-09-15 — aclaración semántica de `Senses`
+
+Decisión de producto cerrada por Josu: una entrada léxica puede contener múltiples sentidos y la polisemia se conserva explícitamente.
+
+- La entrada agrupa sentidos; no obliga a elegir una única traducción por palabra.
+- Cada sentido posee sus propias equivalencias EN/ES/EU/FR, definición y ejemplo.
+- Casos como `bank → banque` y `bank → rive` son correctos simultáneamente cuando corresponden a sentidos distintos.
+- Los campos planos de traducción/definición/ejemplo son proyecciones de compatibilidad o del sentido principal; `Senses` sigue siendo la autoridad semántica.
+- La UI del diccionario debe mostrar cada sentido como bloque independiente: categoría + glosa corta → equivalencias → Definition → Example.
+- Esta aclaración no cambia la estructura 1.1 y por tanto no incrementa `schemaVersion`.
+- Documento de decisión: `vocabulario/schema/DICTIONARY_PRESENTATION.md`.
+
 ## 1.1 — 2026-09-08
 
 Cierre de las decisiones bloqueantes detectadas en `docs/AI_HANDOFF.md` antes de la fusión/publicación del corpus ~5K.
