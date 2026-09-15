@@ -50,6 +50,63 @@ book
     FR Nous avons réservé un hôtel pour samedi.
 ```
 
+## Una única base de conocimiento
+
+**Diccionario, tarjetas, spelling, ejercicios y futuros módulos NO mantienen copias independientes del contenido.** Todos consumen la misma entrada y los mismos `Senses[]`.
+
+La base de conocimiento contiene el máximo contexto disponible:
+
+- lemas y equivalencias EN/ES/EU/FR;
+- acepciones;
+- definiciones;
+- ejemplos;
+- audio EN/FR;
+- imagen y metadatos visuales cuando existan;
+- clasificación educativa y lingüística.
+
+Cada módulo decide qué **proyección** necesita mostrar. No crea ni reescribe su propia versión del dato.
+
+### Ejemplo: aprendizaje de inglés
+
+Una tarjeta EN puede reutilizar el mismo sentido `book / written_work` y mostrar solo:
+
+```text
+imagen → book 🔊
+ES libro
+EU liburu
+Example EN I'm reading a book. 🔊
+```
+
+Puede ocultar francés aunque `FR=livre` exista en la base. Puede ocultar la definición si la dinámica de esa tarjeta no la necesita. El dato sigue existiendo y permanece compartido.
+
+### Ejemplo: aprendizaje de francés
+
+El mismo sentido, sin duplicarlo, puede proyectarse como:
+
+```text
+imagen → livre 🔊
+ES libro
+EU liburu
+Example FR Je lis un livre. 🔊
+```
+
+### Ejemplo: diccionario
+
+El diccionario prioriza riqueza semántica y puede mostrar todas las acepciones, equivalencias, definiciones y ejemplos permitidos por el perfil/idiomas habilitados.
+
+## Imágenes
+
+La imagen pertenece al conocimiento reutilizable, no al módulo de tarjetas.
+
+Por tanto, **el modelo debe permitir usar una imagen también en el diccionario**, aunque la decisión de UI sea contextual:
+
+- tarjetas: la imagen puede ser protagonista y actuar como pista/estímulo;
+- diccionario: la imagen puede mostrarse como apoyo visual opcional y discreto;
+- conceptos abstractos o de baja `Imageability`: puede no mostrarse ninguna imagen;
+- la UI nunca debe depender de que exista imagen.
+
+No se fija todavía que el diccionario muestre siempre imágenes. Se fija únicamente que **no deben duplicarse ni descartarse por pertenecer a otro módulo**.
+
 ## Reglas de datos
 
 1. `ConceptId` identifica la entrada léxica estable.
@@ -66,6 +123,8 @@ book
 6. Definición y ejemplo pertenecen al sentido concreto, no a la entrada global.
 7. La UI del diccionario debe mostrar cada sentido como bloque independiente, siguiendo el orden: categoría + glosa corta → equivalencias → Definition → Example.
 8. No se deben mostrar necesariamente los cuatro idiomas en todos los perfiles; la disponibilidad del dataset y los idiomas habilitados del usuario siguen siendo conceptos separados.
+9. Los ejemplos de `Senses[]` son los mismos que reutilizan las tarjetas y ejercicios. No existen `examplesDictionary` y `examplesFlashcard` separados salvo que en el futuro haya una razón pedagógica explícita y documentada.
+10. Los módulos son vistas/proyecciones del conocimiento. Una edición revisada de traducción, definición o ejemplo se hace una vez en el maestro y se propaga a todas las vistas consumidoras.
 
 ## Consecuencia para la fusión 5K
 
